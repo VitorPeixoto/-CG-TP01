@@ -1,4 +1,4 @@
-#include "Vector3d.h"
+#include "../include/Vector3d.h"
 
 #define X 0
 #define Y 1
@@ -19,6 +19,22 @@ Vector3d& Vector3d::operator*= (double arg) {
     this->components[X] *= arg;
     this->components[Y] *= arg;
     this->components[Z] *= arg;
+
+    return *this;
+}
+
+Vector3d& Vector3d::operator-= (Vector3d& arg) {
+    this->components[X] -= arg.getX();
+    this->components[Y] -= arg.getY();
+    this->components[Z] -= arg.getZ();
+
+    return *this;
+}
+
+Vector3d& Vector3d::operator+= (Vector3d& arg) {
+    this->components[X] += arg.getX();
+    this->components[Y] += arg.getY();
+    this->components[Z] += arg.getZ();
 
     return *this;
 }

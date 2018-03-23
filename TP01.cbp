@@ -32,7 +32,17 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Linker>
+			<Add library="GL" />
+			<Add library="GLEW" />
+			<Add library="glut" />
+			<Add library="SOIL" />
+		</Linker>
+		<Unit filename="include/Spaceship.h" />
+		<Unit filename="include/Vector3d.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/Spaceship.cpp" />
+		<Unit filename="src/Vector3d.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

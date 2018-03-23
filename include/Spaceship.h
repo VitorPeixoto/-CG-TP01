@@ -18,8 +18,14 @@ class Spaceship
         void   setHeight(double val) { speed = val; }
         double getSpeed() { return speed; }
         void   setSpeed(double val) { speed = val; }
+        int    getTextureId() { return textureId; }
+        int    getFireTextureId() { return fireTextureId; }
+        int    getFireTextureIndex() { return (fireTextureIndex/animationFactor); }
+        int    getMaxFireTextureIndex() { return maxFireTextureIndex; }
 
-        void   moveSpaceship(Vector3d movement);
+        int  incrementTextureId();
+        void moveSpaceship(Vector3d movement);
+        void setTextures(int _textureId, int _fireTextureId, int _maxTextureIndex);
     protected:
 
     private:
@@ -28,6 +34,11 @@ class Spaceship
         double width;
         double height;
         double speed;
+           int textureId,
+               fireTextureId,
+               fireTextureIndex,
+               maxFireTextureIndex;
+       const int animationFactor = 2;
 };
 
 #endif // SPACESHIP_H

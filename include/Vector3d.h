@@ -19,6 +19,8 @@ class Vector3d
 
         double& operator[] (int index);
         Vector3d& operator*= (double arg);
+        Vector3d& operator-= (Vector3d& arg);
+        Vector3d& operator+= (Vector3d& arg);
     protected:
 
     private:

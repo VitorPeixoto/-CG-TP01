@@ -1,12 +1,12 @@
-#include <GL/glew.h>
+#include <SOIL/SOIL.h>
 #include <GL/freeglut.h>
 #include <iostream>
+#include <math.h>
 
-#include "Spaceship.h"
+#include "include/Spaceship.h"
+#include "include/Map.h"
 
 using namespace std;
-
-#define sin_45 0.7071
 
 #define R 0
 #define G 1
@@ -16,28 +16,58 @@ using namespace std;
 #define Y 1
 #define Z 2
 
+#define MULTIPLIER 0.5
+#define FPS_CONST 0.017*MULTIPLIER
+
 bool* keyStates = new bool[127];
 bool* specialKeyStates = new bool[127];
+
+bool isEngineOn = false;
 
 int windowWidth,
     windowHeight;
 
-Spaceship s(0.0, 0.0, 40.0, 40.0, 1.0);
+double oWidth, oHeight;
+
+Spaceship s(0.0, 0.0, 26.0, 40.0, 20.0);
+Map m;
+double angle = 0.0;
 
 Vector3d movement(0.0, 0.0, 0.0);
+double gravity = -9.8;
+Vector3d gravityVector(0.0, gravity*FPS_CONST, 0.0);
 
 void drawSpaceship(void) {
-    glColor3f(0.0f, 1.0f, 0.0f);
+    glEnable(GL_TEXTURE_2D);
+
     glPushMatrix();
         glTranslated(s.getX(), s.getY(), 0.0);
         //cout << s.getX() << "   " << s.getY() << endl;
+        int currentIndex = s.getFireTextureIndex();
+        int steps = s.getMaxFireTextureIndex()+1;
+
+        glRotated(angle, 0.0, 0.0, 1.0);
+
+        if(isEngineOn) {
+            glBindTexture(GL_TEXTURE_2D, s.getFireTextureId());
+            glBegin(GL_TRIANGLE_FAN);
+                glTexCoord2f(currentIndex*(1.0/steps), 0);     glVertex2d(-5, -10);
+                glTexCoord2f((currentIndex+1)*(1.0/steps), 0); glVertex2d( 5, -10);
+                glTexCoord2f((currentIndex+1)*(1.0/steps), 1); glVertex2d( 5, -25);
+                glTexCoord2f(currentIndex*(1.0/steps), 1);     glVertex2d(-5, -25);
+            glEnd();
+        }
+
+        glBindTexture(GL_TEXTURE_2D, s.getTextureId());
         glBegin(GL_TRIANGLE_FAN);
-            glVertex2d(-s.getWidth()/2,  s.getHeight()/2);
-            glVertex2d( s.getWidth()/2,  s.getHeight()/2);
-            glVertex2d( s.getWidth()/2, -s.getHeight()/2);
-            glVertex2d(-s.getWidth()/2, -s.getHeight()/2);
+            glTexCoord2f(0, 0); glVertex2d(-s.getWidth()/2,  s.getHeight()/2);
+            glTexCoord2f(1, 0); glVertex2d( s.getWidth()/2,  s.getHeight()/2);
+            glTexCoord2f(1, 1); glVertex2d( s.getWidth()/2, -s.getHeight()/2);
+            glTexCoord2f(0, 1); glVertex2d(-s.getWidth()/2, -s.getHeight()/2);
         glEnd();
     glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D);
 }
 
 
@@ -46,6 +76,7 @@ void drawScene(void) {
     // possamos desenhar
     glClear(GL_COLOR_BUFFER_BIT);
         drawSpaceship();
+        m.drawMap();
     // Diz ao OpenGL para colocar o que desenhamos na tela
     glutSwapBuffers();
 }
@@ -58,6 +89,28 @@ void inicializa(void) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
+    int spaceshipTexture =  SOIL_load_OGL_texture(
+        "src/images/spaceship.png",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        0
+	);
+
+    int fireTexture = SOIL_load_OGL_texture(
+        "src/images/firesprite.png",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        0
+	);
+
+    if (fireTexture == 0 || spaceshipTexture == 0) {
+        printf("Erro do SOIL: '%s'\n", SOIL_last_result());
+        exit(-1);
+    }
+
+    s.setTextures(spaceshipTexture, fireTexture, 15);
+    m.generateRandom(1000 * (double)windowWidth/windowHeight, 1000);
+
     // cor para limpar a tela
     glClearColor(1, 1, 1, 0); // branco
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -66,11 +119,14 @@ void inicializa(void) {
 // Callback de redimensionamento
 void resizeScreen(int w, int h) {
     double aspectRatio = (double)w / h;
-
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-50 * aspectRatio, 50 * aspectRatio, -50, 50, -1, 1);
+
+    oWidth  = 500 * aspectRatio;
+    oHeight = 500;
+
+    glOrtho(-oWidth, oWidth, -oHeight, oHeight, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -87,11 +143,9 @@ void specialKeyDown(int key, int x, int y) {
 
 void keyUp(unsigned char key, int x, int y) {
     keyStates[key] = false;
-    if(key == 'w' || key == 's') {
-        movement[Y] = 0.0;
-    }
-    if(key == 'a' || key == 'd') {
-        movement[X] = 0.0;
+    if(key == 'w') {
+    //    movement *= 0.0;
+        isEngineOn = false;
     }
 }
 
@@ -101,29 +155,30 @@ void specialKeyUp(int key, int x, int y) {
 
 void keyboardHandle() {
     if(keyStates['w']) {
-        movement[Y] += s.getSpeed();
+        double sAngle = 90 + angle;
+        sAngle *= M_PI/180;
+
+        movement[X] += s.getSpeed() * cos(sAngle) * FPS_CONST;
+        movement[Y] += s.getSpeed() * sin(sAngle) * FPS_CONST;
+        isEngineOn = true;
     }
     if(keyStates['a']) {
-        movement[X] -= s.getSpeed();
-    }
-    if(keyStates['s']) {
-        movement[Y] -= s.getSpeed();
+        angle -= 1.0;
     }
     if(keyStates['d']) {
-        movement[X] += s.getSpeed();
+        angle += 1.0;
     }
 
-    if(movement[X] && movement[Y])
-        movement *= sin_45;
+    movement += gravityVector;
 
     s.moveSpaceship(movement);
     glutPostRedisplay();
 }
 
 void atualiza(int time) {
-    movement *= 0.0;
     keyboardHandle();
     glutTimerFunc(time, atualiza, time);
+    s.incrementTextureId();
 }
 
 // Rotina principal
