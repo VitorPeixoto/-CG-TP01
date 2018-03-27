@@ -23,21 +23,15 @@ void Map::generateRandom(double width, double height) {
                  topLeft(-width/2,        -(rand() % heightLimit + 1), 0.0),
                 topRight( width/2 + step, -(rand() % heightLimit + 1), 0.0);
 
-    cout << width << "  " << height << endl;
-
     points.clear();
 
     double currentLeft = -(width/2);
     double randomHeight;
-    /*points.push_back(*new Vector3d(currentLeft,         randomHeight, 0.0));
-    points.push_back(*new Vector3d(currentLeft,        -height, 0.0));
-    points.push_back(*new Vector3d(currentLeft + step, -height, 0.0));
-    points.push_back(*new Vector3d(currentLeft + step,  randomHeight, 0.0));*/
 
     while(currentLeft < width) {
         randomHeight = -(rand() % heightLimit + 1);
-        points.push_back(*new Vector3d(currentLeft,         randomHeight, 0.0));
-        points.push_back(*new Vector3d(currentLeft,        -height, 0.0));
+        points.push_back(*new Vector3d(currentLeft,  randomHeight, 0.0));
+        points.push_back(*new Vector3d(currentLeft, -height, 0.0));
         currentLeft += step;
 
         points.push_back(*new Vector3d(currentLeft,  randomHeight, 0.0));
@@ -79,6 +73,8 @@ void Map::drawMap() {
 }
 
 bool Map::collidesWith(vector<Vector3d> vertices) {
+    if(points.size() == 0) return false;
+
     // Eixos normais das faces do retangulo do foguete
     vector<Vector3d> verticesAxes;
     verticesAxes.push_back(getNormal(vertices[0], vertices[1]));
