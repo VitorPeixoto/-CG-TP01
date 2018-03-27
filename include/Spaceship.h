@@ -1,7 +1,10 @@
 #ifndef SPACESHIP_H
 #define SPACESHIP_H
 
+#include <vector>
 #include "Vector3d.h"
+
+using namespace std;
 
 class Spaceship
 {
@@ -26,6 +29,7 @@ class Spaceship
         int  incrementTextureId();
         void moveSpaceship(Vector3d movement);
         void setTextures(int _textureId, int _fireTextureId, int _maxTextureIndex);
+        vector<Vector3d> getVertices();
     protected:
 
     private:
@@ -38,6 +42,7 @@ class Spaceship
                fireTextureId,
                fireTextureIndex,
                maxFireTextureIndex;
+
        const int animationFactor = 2;
 };
 

@@ -39,3 +39,6 @@ Vector3d& Vector3d::operator+= (Vector3d& arg) {
     return *this;
 }
 
+Vector3d Vector3d::operator- () {
+    return Vector3d(-components[X], -components[Y], -components[Z]);
+}

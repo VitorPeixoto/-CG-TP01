@@ -109,7 +109,7 @@ void inicializa(void) {
     }
 
     s.setTextures(spaceshipTexture, fireTexture, 15);
-    m.generateRandom(1000 * (double)windowWidth/windowHeight, 1000);
+
 
     // cor para limpar a tela
     glClearColor(1, 1, 1, 0); // branco
@@ -127,6 +127,7 @@ void resizeScreen(int w, int h) {
     oHeight = 500;
 
     glOrtho(-oWidth, oWidth, -oHeight, oHeight, -1, 1);
+    m.generateRandom((oWidth*2), (oHeight*2));
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -178,6 +179,9 @@ void keyboardHandle() {
 void atualiza(int time) {
     keyboardHandle();
     glutTimerFunc(time, atualiza, time);
+    if(m.collidesWith(s.getVertices())) {
+        movement *= -1.0;
+    }
     s.incrementTextureId();
 }
 
@@ -200,6 +204,7 @@ int main(int argc, char **argv) {
 
     // Abre a janela
     glutCreateWindow("Title");
+    glutFullScreen();
 
     // Registra callbacks para alguns eventos
     glutDisplayFunc(drawScene);

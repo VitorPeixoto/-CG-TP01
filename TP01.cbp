@@ -13,6 +13,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -22,6 +23,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -38,9 +40,13 @@
 			<Add library="glut" />
 			<Add library="SOIL" />
 		</Linker>
+		<Unit filename="include/Map.h" />
+		<Unit filename="include/Projection.h" />
 		<Unit filename="include/Spaceship.h" />
 		<Unit filename="include/Vector3d.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/Map.cpp" />
+		<Unit filename="src/Projection.cpp" />
 		<Unit filename="src/Spaceship.cpp" />
 		<Unit filename="src/Vector3d.cpp" />
 		<Extensions>
