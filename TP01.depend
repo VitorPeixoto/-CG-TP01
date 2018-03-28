@@ -1,9 +1,10 @@
 # depslib dependency file v1.0
-1522244674 source:/home/peixoto/Documentos/CG/TP1/TP01/main.cpp
+1522258542 source:/home/peixoto/Documentos/CG/TP1/TP01/main.cpp
 	<SOIL/SOIL.h>
 	<GL/freeglut.h>
 	<iostream>
 	<math.h>
+	<string.h>
 	"include/Spaceship.h"
 	"include/Map.h"
 
@@ -13,7 +14,7 @@
 	<vector>
 	"Vector3d.h"
 
-1522244581 source:/home/peixoto/Documentos/CG/TP1/TP01/src/Spaceship.cpp
+1522244821 source:/home/peixoto/Documentos/CG/TP1/TP01/src/Spaceship.cpp
 	"../include/Spaceship.h"
 	<GL/freeglut.h>
 
