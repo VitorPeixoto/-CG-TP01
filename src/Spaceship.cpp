@@ -47,7 +47,7 @@ void Spaceship::drawSpaceship(void) {
     glColor3f(1.0, 1.0, 1.0);
     glPushMatrix();
         glTranslated(x, y, 0.0);
-        int currentIndex = fireTextureIndex;
+        int currentIndex = (fireTextureIndex/animationFactor);
         int steps        = maxFireTextureIndex+1;
 
         glRotated(angle-90, 0.0, 0.0, 1.0);

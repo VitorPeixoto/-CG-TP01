@@ -23,7 +23,7 @@ class Spaceship
         void   setSpeed(double val) { speed = val; }
         int    getTextureId() { return textureId; }
         int    getFireTextureId() { return fireTextureId; }
-        int    getFireTextureIndex() { return (fireTextureIndex/animationFactor); }
+        int    getFireTextureIndex() { return fireTextureIndex; }
         int    getMaxFireTextureIndex() { return maxFireTextureIndex; }
         double getAngle() { return angle; }
         void   incrementAngle() { angle += rotationSpeed; }
