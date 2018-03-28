@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1522166882 source:/home/peixoto/Documentos/CG/TP1/TP01/main.cpp
+1522194934 source:/home/peixoto/Documentos/CG/TP1/TP01/main.cpp
 	<SOIL/SOIL.h>
 	<GL/freeglut.h>
 	<iostream>
@@ -9,24 +9,25 @@
 
 1521636300 source:/home/peixoto/Documentos/CG/TP1/TP01/Spaceship.cpp
 
-1522109012 /home/peixoto/Documentos/CG/TP1/TP01/include/Spaceship.h
+1522194901 /home/peixoto/Documentos/CG/TP1/TP01/include/Spaceship.h
 	<vector>
 	"Vector3d.h"
 
-1522109047 source:/home/peixoto/Documentos/CG/TP1/TP01/src/Spaceship.cpp
+1522195413 source:/home/peixoto/Documentos/CG/TP1/TP01/src/Spaceship.cpp
 	"../include/Spaceship.h"
+	<GL/freeglut.h>
 
-1522166553 /home/peixoto/Documentos/CG/TP1/TP01/include/Vector3d.h
+1522193533 /home/peixoto/Documentos/CG/TP1/TP01/include/Vector3d.h
 
-1522166524 source:/home/peixoto/Documentos/CG/TP1/TP01/src/Vector3d.cpp
+1522193572 source:/home/peixoto/Documentos/CG/TP1/TP01/src/Vector3d.cpp
 	"../include/Vector3d.h"
 
-1522108051 /home/peixoto/Documentos/CG/TP1/TP01/include/Map.h
+1522192062 /home/peixoto/Documentos/CG/TP1/TP01/include/Map.h
 	<vector>
 	<Projection.h>
 	<Vector3d.h>
 
-1522166652 source:/home/peixoto/Documentos/CG/TP1/TP01/src/Map.cpp
+1522192874 source:/home/peixoto/Documentos/CG/TP1/TP01/src/Map.cpp
 	"Map.h"
 	<stdlib.h>
 	<GL/glew.h>

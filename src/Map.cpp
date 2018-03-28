@@ -11,17 +11,19 @@ using namespace std;
 #define Y 1
 
 void Map::generateRandom(double width, double height) {
-    int rectangles = 100;
-    int heightLimit = height/5;
-    double step = (width)/rectangles;
-
+    int rectangles = 20;
+    minHeight    = -(height/4);
+    maxHeight    = -(minHeight/2);
+    double step  = (width)/rectangles;
+    this->width  = width;
+    this->height = height;
     /* initialize random seed: */
     srand(time(NULL));
 
     Vector3d  bottomLeft(-width/2,        -height, 0.0),
              bottomRight( width/2 + step, -height, 0.0),
-                 topLeft(-width/2,        -(rand() % heightLimit + 1), 0.0),
-                topRight( width/2 + step, -(rand() % heightLimit + 1), 0.0);
+                 topLeft(-width/2,        minHeight + (rand() % (int)maxHeight + 1), 0.0),
+                topRight( width/2 + step, minHeight + (rand() % (int)maxHeight + 1), 0.0);
 
     points.clear();
 
@@ -29,7 +31,7 @@ void Map::generateRandom(double width, double height) {
     double randomHeight;
 
     while(currentLeft < width) {
-        randomHeight = -(rand() % heightLimit + 1);
+        randomHeight = minHeight + (rand() % (int)maxHeight + 1);
         points.push_back(*new Vector3d(currentLeft,  randomHeight, 0.0));
         points.push_back(*new Vector3d(currentLeft, -height, 0.0));
         currentLeft += step;
@@ -49,11 +51,10 @@ Projection Map::getProjection(vector<Vector3d> vertices, Vector3d axis) {
     double maxValue = minValue;
 
     for(int i = 1; i < vertices.size(); i++) {
-        double aux = getDotProduct(vertices[1], axis);
+        double aux = getDotProduct(vertices[i], axis);
         if(aux < minValue) minValue = aux;
         else if(aux > maxValue) maxValue = aux;
     }
-
     return Projection(minValue, maxValue);
 }
 
@@ -63,13 +64,17 @@ Vector3d Map::getNormal(Vector3d vertex1, Vector3d vertex2) {
 
 
 void Map::drawMap() {
-    glColor3f(0.0, 1.0, 0.0);
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glColor3f(1.0, 1.0, 1.0);
+    glEnable(GL_TEXTURE_2D);
+
+    glBindTexture(GL_TEXTURE_2D, textureId);
     glBegin(GL_TRIANGLE_STRIP);
         for (auto &point : points) {
-            glVertex2d(point[X], point[Y]);
+            glTexCoord2f((point[X]+width/2)/width, (point[Y]+height/2)/(maxHeight+height/2)); glVertex2d(point[X], point[Y]);
         }
     glEnd();
+
+    glDisable(GL_TEXTURE_2D);
 }
 
 bool Map::collidesWith(vector<Vector3d> vertices) {
@@ -95,7 +100,7 @@ bool Map::collidesWith(vector<Vector3d> vertices) {
         v.push_back(points[i+2]);
 
         bool con = false;
-        for(int j = 0; j < 3; j++) {
+        for(int j = 0; j < triangleAxes.size(); j++) {
             Projection p1 = getProjection(vertices, triangleAxes[j]);
             Projection p2 = getProjection(v, triangleAxes[j]);
 
@@ -107,7 +112,7 @@ bool Map::collidesWith(vector<Vector3d> vertices) {
         if(con) continue;
 
         con = false;
-        for(int j = 0; j < 4; j++) {
+        for(int j = 0; j < verticesAxes.size(); j++) {
             Projection p1 = getProjection(vertices, verticesAxes[j]);
             Projection p2 = getProjection(v, verticesAxes[j]);
 

@@ -17,6 +17,8 @@ class Vector3d
         double getZ() { return components[Z]; }
         void setZ(double val) { components[Z] = val; }
 
+        double max();
+
         double& operator[] (int index);
         Vector3d& operator*= (double arg);
         Vector3d& operator-= (Vector3d& arg);
