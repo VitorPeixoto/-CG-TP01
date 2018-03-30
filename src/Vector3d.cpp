@@ -1,4 +1,5 @@
 #include "../include/Vector3d.h"
+#include <math.h>
 
 #define X 0
 #define Y 1
@@ -41,4 +42,10 @@ Vector3d& Vector3d::operator+= (Vector3d& arg) {
 
 Vector3d Vector3d::operator- () {
     return Vector3d(-components[X], -components[Y], -components[Z]);
+}
+
+double Vector3d::getNorm() {
+    return sqrt(components[X]*components[X] +
+                components[Y]*components[Y] +
+                components[Z]*components[Z]);
 }

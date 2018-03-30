@@ -2,54 +2,54 @@
 #define SPACESHIP_H
 
 #include <vector>
+#include "RigidBody.h"
 #include "Vector3d.h"
 
 using namespace std;
 
-class Spaceship
-{
+class Spaceship : public RigidBody {
     public:
         Spaceship(double _x, double _y, double _width, double _height, double _speed);
 
-        double getX() { return x; }
-        void   setX(double val) { x = val; }
-        double getY() { return y; }
-        void   setY(double val) { y = val; }
-        double getWidth() { return width; }
-        void   setWidth(double val) { width = val; }
-        double getHeight() { return height; }
-        void   setHeight(double val) { speed = val; }
         double getSpeed() { return speed; }
         void   setSpeed(double val) { speed = val; }
         int    getTextureId() { return textureId; }
         int    getFireTextureId() { return fireTextureId; }
         int    getFireTextureIndex() { return fireTextureIndex; }
         int    getMaxFireTextureIndex() { return maxFireTextureIndex; }
+        int    getExplosionTextureId() { return explosionTextureId; }
+        int    getExplosionTextureIndex() { return explosionTextureIndex; }
+        int    getMaxExplosionTextureIndex() { return maxExplosionTextureIndex; }
         double getAngle() { return angle; }
         void   incrementAngle() { angle += rotationSpeed; }
         void   decrementAngle() { angle -= rotationSpeed; }
         bool   isEngineOn() { return engineOn; }
         void   setEngineOn(bool val) { engineOn = val; }
+        void   setExploded(bool val) { exploded = val; }
+        void   explode() { exploded = true; }
+        bool   hasExploded() { return exploded; }
 
-        int  incrementTextureId();
+        void  incrementFireTextureIndex();
+        void  incrementExplosionTextureIndex();
         void moveSpaceship(Vector3d movement);
+        void randomLocation(double maxWidth, double maxHeight);
         void drawSpaceship(void);
-        void setTextures(int _textureId, int _fireTextureId, int _maxTextureIndex);
-        vector<Vector3d> getVertices();
+        void setTextures(int _textureId, int _fireTextureId, int _maxTextureIndex, int _explosionTextureIndex, int _maxExplosionTextureIndex);
     protected:
 
     private:
-        bool   engineOn;
-        double x;
-        double y;
+        bool   engineOn, exploded;
         double width;
         double height;
         double angle;
         double speed;
            int textureId,
                fireTextureId,
+               explosionTextureId,
                fireTextureIndex,
-               maxFireTextureIndex;
+               explosionTextureIndex,
+               maxFireTextureIndex,
+               maxExplosionTextureIndex;
 
        const double rotationSpeed   = 1.0f;
        const    int animationFactor = 2;

@@ -40,3 +40,67 @@
 1522110053 source:/home/peixoto/Documentos/CG/TP1/TP01/src/Projection.cpp
 	"Projection.h"
 
+1522171766 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\projection.cpp
+	"Projection.h"
+
+1522171766 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\projection.h
+
+1522262037 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\vector3d.cpp
+	"../include/Vector3d.h"
+	<math.h>
+
+1522261881 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\vector3d.h
+
+1522441378 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\main.cpp
+	<SOIL/SOIL.h>
+	<GL/freeglut.h>
+	<iostream>
+	<math.h>
+	<string.h>
+	<string>
+	"LandingSite.h"
+	"include/Spaceship.h"
+	"include/Map.h"
+
+1522441215 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\spaceship.h
+	<vector>
+	"RigidBody.h"
+	"Vector3d.h"
+
+1522357875 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\map.h
+	<vector>
+	<Projection.h>
+	<Vector3d.h>
+	"RigidBody.h"
+
+1522421664 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\map.cpp
+	"Map.h"
+	<stdlib.h>
+	<GL/glew.h>
+	<iostream>
+	<time.h>
+
+1522441304 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\spaceship.cpp
+	"../include/Spaceship.h"
+	<GL/freeglut.h>
+	<stdlib.h>
+
+1522421910 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\landingsite.cpp
+	"LandingSite.h"
+	<GL/glew.h>
+
+1522422036 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\landingsite.h
+	<vector>
+	"Vector3d.h"
+	"RigidBody.h"
+
+1522422620 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\rigidbody.h
+	"Vector3d.h"
+	"Projection.h"
+	<vector>
+
+1522421657 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\rigidbody.cpp
+	"RigidBody.h"
+	<iostream>
+	<GL/glew.h>
+

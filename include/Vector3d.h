@@ -1,9 +1,9 @@
 #ifndef VECTOR3D_H
 #define VECTOR3D_H
 
-#define X 0
-#define Y 1
-#define Z 2
+const int X = 0;
+const int Y = 1;
+const int Z = 2;
 
 class Vector3d
 {
@@ -16,7 +16,7 @@ class Vector3d
         void setY(double val) { components[Y] = val; }
         double getZ() { return components[Z]; }
         void setZ(double val) { components[Z] = val; }
-
+        double getNorm();
         double max();
 
         double& operator[] (int index);

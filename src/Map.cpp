@@ -10,58 +10,59 @@ using namespace std;
 #define X 0
 #define Y 1
 
+Map::Map() {
+
+}
+
 void Map::generateRandom(double width, double height) {
     int rectangles = 20;
-    minHeight    = -(height/4);
-    maxHeight    = -(minHeight/2);
+    minHeight    = -(height/2.5);
+    maxHeight    = -(minHeight/1.5);
     double step  = (width)/rectangles;
     this->width  = width;
     this->height = height;
     /* initialize random seed: */
     srand(time(NULL));
 
-    Vector3d  bottomLeft(-width/2,        -height, 0.0),
-             bottomRight( width/2 + step, -height, 0.0),
-                 topLeft(-width/2,        minHeight + (rand() % (int)maxHeight + 1), 0.0),
-                topRight( width/2 + step, minHeight + (rand() % (int)maxHeight + 1), 0.0);
+    Vector3d bottomRight( width/2, -height, 0.0),
+             topRight( width/2, minHeight + (rand() % (int)maxHeight + 1), 0.0);
 
     points.clear();
+    polygons.clear();
 
     double currentLeft = -(width/2);
     double randomHeight;
 
-    while(currentLeft < width) {
+    while(currentLeft <= (width/2)) {
         randomHeight = minHeight + (rand() % (int)maxHeight + 1);
-        points.push_back(*new Vector3d(currentLeft,  randomHeight, 0.0));
-        points.push_back(*new Vector3d(currentLeft, -height, 0.0));
+        Vector3d v0 = Vector3d(currentLeft,  randomHeight, 0.0);
+
+        points.push_back(v0);
+        Vector3d v1 = Vector3d(currentLeft, -height, 0.0);
+
+        points.push_back(v1);
         currentLeft += step;
 
-        points.push_back(*new Vector3d(currentLeft,  randomHeight, 0.0));
-        points.push_back(*new Vector3d(currentLeft, -height, 0.0));
+        Vector3d v2 = Vector3d(currentLeft,  randomHeight, 0.0);
+
+        points.push_back(v2);
+        Vector3d v3 = Vector3d(currentLeft, -height, 0.0);
+
+        points.push_back(v3);
         currentLeft += step;
     }
-}
+    points.push_back(topRight);
+    points.push_back(bottomRight);
 
-double Map::getDotProduct(Vector3d vertex, Vector3d axis) {
-    return (vertex[X] * axis[X]) + (vertex[Y] * axis[Y]) + (vertex[Z] * vertex[Z]);
-}
-
-Projection Map::getProjection(vector<Vector3d> vertices, Vector3d axis) {
-    double minValue = getDotProduct(vertices[0], axis);
-    double maxValue = minValue;
-
-    for(int i = 1; i < vertices.size(); i++) {
-        double aux = getDotProduct(vertices[i], axis);
-        if(aux < minValue) minValue = aux;
-        else if(aux > maxValue) maxValue = aux;
+    vector<Vector3d> v;
+    for(int i = 0; i < points.size()-2; i++) {
+        v.push_back(points[i]);
+        v.push_back(points[i+1]);
+        v.push_back(points[i+2]);
+        polygons.push_back(v);
+        v.clear();
     }
-    return Projection(minValue, maxValue);
 }
-
-Vector3d Map::getNormal(Vector3d vertex1, Vector3d vertex2) {
-    return Vector3d(vertex1[Y] - vertex2[Y], -(vertex1[X] - vertex2[X]), 0.0);
-}
-
 
 void Map::drawMap() {
     glColor3f(1.0, 1.0, 1.0);
@@ -75,55 +76,22 @@ void Map::drawMap() {
     glEnd();
 
     glDisable(GL_TEXTURE_2D);
+    //drawBody();
 }
 
-bool Map::collidesWith(vector<Vector3d> vertices) {
-    if(points.size() == 0) return false;
+Vector3d Map::getRandomPlane() {
+    // Para não vir o V0 aqui
+    int random = (rand() % (points.size()-1))+1;
 
-    // Eixos normais das faces do retangulo do foguete
-    vector<Vector3d> verticesAxes;
-    verticesAxes.push_back(getNormal(vertices[0], vertices[1]));
-    verticesAxes.push_back(getNormal(vertices[1], vertices[2]));
-    verticesAxes.push_back(getNormal(vertices[2], vertices[3]));
-    verticesAxes.push_back(getNormal(vertices[3], vertices[0]));
+    /**
+        Os segmentos planos do mapa são formados pelos vértices múltiplos de 4 e o segundo vértice seguinte
+        Ex.: V4 e V6, V8 e V10 ...
+    */
 
-    for(int i = 0; i < points.size()-3; i++) {
-        // Eixos normais dos triangulos do mapa
-        vector<Vector3d> triangleAxes;
-        triangleAxes.push_back(getNormal(points[i], points[i+1]));
-        triangleAxes.push_back(getNormal(points[i+1], points[i+2]));
-        triangleAxes.push_back(getNormal(points[i+2], points[i]));
+    //Através de operação de bits obtem o multiplo de 4 mais próximo abaixo de random
+    int primeiroVertice = ((random) & ~0x03);
 
-        vector<Vector3d> v;
-        v.push_back(points[i]);
-        v.push_back(points[i+1]);
-        v.push_back(points[i+2]);
-
-        bool con = false;
-        for(int j = 0; j < triangleAxes.size(); j++) {
-            Projection p1 = getProjection(vertices, triangleAxes[j]);
-            Projection p2 = getProjection(v, triangleAxes[j]);
-
-            if(!p1.overlaps(p2)) {
-                con = true;
-                break;
-            }
-        }
-        if(con) continue;
-
-        con = false;
-        for(int j = 0; j < verticesAxes.size(); j++) {
-            Projection p1 = getProjection(vertices, verticesAxes[j]);
-            Projection p2 = getProjection(v, verticesAxes[j]);
-
-            if(!p1.overlaps(p2)) {
-                con = true;
-                break;
-            }
-        }
-        if(con) continue;
-        return true;
-    }
-
-    return false;
+    double x = (points[primeiroVertice][X] + points[primeiroVertice+2][X])/2;
+    double y = points[primeiroVertice][Y];
+    return Vector3d(x, y, 0.0);
 }

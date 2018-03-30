@@ -4,17 +4,16 @@
 #include <vector>
 #include <Projection.h>
 #include <Vector3d.h>
+#include "RigidBody.h"
 
 using namespace std;
 
-class Map {
+class Map : public RigidBody {
     public:
+        Map();
         void generateRandom(double width, double height);
         void drawMap();
-        Projection getProjection(vector<Vector3d> vertices, Vector3d axis);
-        double getDotProduct(Vector3d vertex, Vector3d axis);
-        Vector3d getNormal(Vector3d vertex1, Vector3d vertex2);
-        bool collidesWith(vector<Vector3d> vertices);
+        Vector3d getRandomPlane();
 
         int getTexture() { return textureId; }
         void setTexture(int val) { textureId = val; }
