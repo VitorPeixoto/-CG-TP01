@@ -51,13 +51,14 @@
 
 1522261881 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\vector3d.h
 
-1522441378 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\main.cpp
+1522444140 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\main.cpp
 	<SOIL/SOIL.h>
 	<GL/freeglut.h>
 	<iostream>
 	<math.h>
 	<string.h>
 	<string>
+	<random>
 	"LandingSite.h"
 	"include/Spaceship.h"
 	"include/Map.h"

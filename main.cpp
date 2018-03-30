@@ -4,6 +4,7 @@
 #include <math.h>
 #include <string.h>
 #include <string>
+#include <random>
 
 #include "LandingSite.h"
 #include "include/Spaceship.h"
@@ -200,6 +201,10 @@ void restart() {
     Vector3d v = m.getRandomPlane();
     l.setX(v.getX());
     l.setY(v.getY());
+
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> distribution(0.5, 12.5);
+    gravity = distribution(generator);
 
     gravity = -(rand() % 12 + 1);
     gravityVector = Vector3d(0.0, gravity*FPS_CONST, 0.0);
