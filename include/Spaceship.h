@@ -13,6 +13,9 @@ class Spaceship : public RigidBody {
 
         double getSpeed() { return speed; }
         void   setSpeed(double val) { speed = val; }
+        double getFuel() { return fuel; }
+        void   setFuel(double val) { fuel = val; }
+        bool   hasFuel() { return fuel >= 0.0; }
         int    getTextureId() { return textureId; }
         int    getFireTextureId() { return fireTextureId; }
         int    getFireTextureIndex() { return fireTextureIndex; }
@@ -33,7 +36,7 @@ class Spaceship : public RigidBody {
         void  incrementExplosionTextureIndex();
         void moveSpaceship(Vector3d movement);
         void randomLocation(double maxWidth, double maxHeight);
-        void drawSpaceship(void);
+        void drawSpaceship(bool horizontalLock, double lockedAtH);
         void setTextures(int _textureId, int _fireTextureId, int _maxTextureIndex, int _explosionTextureIndex, int _maxExplosionTextureIndex);
     protected:
 
@@ -43,6 +46,7 @@ class Spaceship : public RigidBody {
         double height;
         double angle;
         double speed;
+        double fuel = 50;
            int textureId,
                fireTextureId,
                explosionTextureId,

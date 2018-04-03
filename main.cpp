@@ -27,16 +27,21 @@ using namespace std;
 
 bool* keyStates = new bool[127];
 bool* specialKeyStates = new bool[127];
-bool isPaused = false, isExiting = false, isRestarting = false, landedOnSpot = false, landedOff = false, gameEnded = false;
+bool isPaused = true, isExiting = false, isRestarting = false, landedOnSpot = false, landedOff = false, gameEnded = false;
 
 int windowWidth,
     windowHeight;
+
+int backgroundTextureId;
 
 double orthoHalfWidth, orthoHalfHeight;
 
 Spaceship s(0.0, 0.0, 26.0, 40.0, 20.0);
 LandingSite l(0.0, 0.0, 60.0, 20.0);
 Map m;
+
+std::default_random_engine generator;
+std::uniform_int_distribution<int> distribution(1, 11);
 
 Vector3d movement(0.0, 0.0, 0.0);
 double gravity = -9.8;
@@ -117,15 +122,68 @@ void drawHUD() {
 
     message = (char*)std::to_string(abs(gravity - (s.isEngineOn() ? s.getSpeed() : 0))).c_str();
     drawText(message, -orthoHalfWidth+HUD_MARGIN+150, orthoHalfHeight-60);
+
+    message = (char*)"Combustivel:";
+    drawText(message, -orthoHalfWidth+HUD_MARGIN, orthoHalfHeight-80);
+
+    message = (char*)std::to_string(s.getFuel()).c_str();
+    drawText(message, -orthoHalfWidth+HUD_MARGIN+150, orthoHalfHeight-80);
+
+    message = (char*)"Distancia:";
+    drawText(message, -orthoHalfWidth+HUD_MARGIN, orthoHalfHeight-100);
+
+    message = (char*)std::to_string(abs(s.getX() - l.getX())).c_str();
+    drawText(message, -orthoHalfWidth+HUD_MARGIN+150, orthoHalfHeight-100);
+
+    double directiveArrowAngle = atan2(-s.getY() + l.getY(), -s.getX() + l.getX());
+    double magnitude = (sqrt(((-s.getX() + l.getX()) * (-s.getX() + l.getX())) + ((-s.getY() + l.getY()) * (-s.getY() + l.getY()))) + 60) / 30;
+
+    glBegin(GL_LINES);
+        glVertex3f(0.0, orthoHalfHeight, 0.0);
+        glVertex3f(0.0 + cos(directiveArrowAngle)*magnitude, orthoHalfHeight, 0);
+    glEnd();
+}
+
+void drawBackground() {
+   glEnable(GL_TEXTURE_2D);
+
+    glBindTexture(GL_TEXTURE_2D, backgroundTextureId);
+    glBegin(GL_TRIANGLE_FAN);
+        glTexCoord2f(0, 0); glVertex2d(-orthoHalfWidth,  orthoHalfHeight);
+        glTexCoord2f(1, 0); glVertex2d( orthoHalfWidth,  orthoHalfHeight);
+        glTexCoord2f(1, 1); glVertex2d( orthoHalfWidth, -orthoHalfHeight);
+        glTexCoord2f(0, 1); glVertex2d(-orthoHalfWidth, -orthoHalfHeight);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
 }
 
 void drawScene(void) {
-    // Limpa a tela (com a cor definida por glClearColor(r,g,b)) para que
-    // possamos desenhar
+    double lockedAtH = 0.0;
+    bool horizontalLock = false;
+    if(!(s.getX() > -(orthoHalfWidth*3))) {
+        lockedAtH = -orthoHalfWidth*3;
+        horizontalLock = true;
+    }
+    else if(!(s.getX() < (orthoHalfWidth*3))) {
+        lockedAtH = orthoHalfWidth*3;
+        horizontalLock = true;
+    }
+
     glClear(GL_COLOR_BUFFER_BIT);
-        m.drawMap();
-        l.drawSite();
-        s.drawSpaceship();
+
+        glPushMatrix();
+            if(!horizontalLock) glTranslated(-s.getX()/20, -s.getY()/20, 0.0);
+            else glTranslated(-lockedAtH/20, -s.getY()/20, 0.0);
+            drawBackground();
+        glPopMatrix();
+        glPushMatrix();
+            if(!horizontalLock) glTranslated(-s.getX(), -s.getY(), 0.0);
+            else glTranslated(-lockedAtH, -s.getY(), 0.0);
+
+            m.drawMap();
+            l.drawSite();
+        glPopMatrix();
+        s.drawSpaceship(horizontalLock, lockedAtH);
         if(isRestarting) drawRestartingConfirmation();
         if(isExiting)    drawExitingConfirmation();
         if(isPaused)     drawPaused();
@@ -181,7 +239,14 @@ void inicializa(void) {
         0
 	);
 
-    if (fireTexture == 0 || spaceshipTexture == 0 || mapTexture == 0 || landingSiteTexture == 0 || explosionTexture == 0) {
+	backgroundTextureId = SOIL_load_OGL_texture(
+        "src/images/Earth.png",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        0
+	);
+
+    if (fireTexture == 0 || spaceshipTexture == 0 || mapTexture == 0 || landingSiteTexture == 0 || explosionTexture == 0 || backgroundTextureId == 0) {
         printf("Erro do SOIL: '%s'\n", SOIL_last_result());
         exit(-1);
     }
@@ -191,23 +256,27 @@ void inicializa(void) {
     l.setTexture(landingSiteTexture);
 
     // cor para limpar a tela
-    glClearColor(0, 0, 0.22, 0);
+    glClearColor(0, 0, 0.0, 0);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void restart() {
-    s.randomLocation(orthoHalfWidth*2, orthoHalfHeight*2);
-    m.generateRandom(orthoHalfWidth*2, orthoHalfHeight*2);
+    s.randomLocation(orthoHalfWidth*2*4, orthoHalfHeight*2);
+    m.generateRandom(orthoHalfWidth*2*4, orthoHalfHeight*2);
     Vector3d v = m.getRandomPlane();
     l.setX(v.getX());
     l.setY(v.getY());
 
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> distribution(0.5, 12.5);
-    gravity = distribution(generator);
+    gravity = -distribution(generator);
 
-    gravity = -(rand() % 12 + 1);
     gravityVector = Vector3d(0.0, gravity*FPS_CONST, 0.0);
+
+    //cout << "angle: " << abs(asin(gravity/s.getSpeed()))*180/M_PI << endl;
+    //cout << "Fmx: "   << cos(abs(asin(gravity/s.getSpeed())))*20  << endl;
+
+    double t = (abs(s.getX() - l.getX())*0.7)/(cos(abs(asin(gravity*1.8/s.getSpeed())))*s.getSpeed());
+    double fuel = 30+t*0.15;
+    s.setFuel(fuel);
 
     gameEnded = landedOnSpot = landedOff = false;
     s.setExploded(false);
@@ -239,6 +308,15 @@ void keyDown(unsigned char key, int x, int y) {
 
     if(key == 'p' && !isExiting && !isRestarting) {
         isPaused = !isPaused;
+        //glViewport(0, 0, w, h);
+        /*glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+
+        //orthoHalfWidth  = 500 * aspectRatio;
+        //orthoHalfHeight = 500;
+        glOrtho(-orthoHalfWidth/1.3, orthoHalfWidth/1.3, -orthoHalfHeight/1.3, orthoHalfHeight/1.3, -1, 1);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();*/
     }
     if(key == 'r') {
         isRestarting = true;
@@ -278,7 +356,7 @@ void specialKeyUp(int key, int x, int y) {
 
 void keyboardHandle() {
     if(!gameEnded) {
-        if(keyStates['w']) {
+        if(keyStates['w'] && s.hasFuel()) {
             double radAngle = s.getAngle();
             radAngle *= M_PI/180;
 
@@ -306,14 +384,14 @@ void atualiza(int time) {
     }
     keyboardHandle();
     if(s.collidesWith(m.getPolygons(), m.getX(), m.getY(), 0.0)) {
-        if(movement.getNorm() > 2.0) {
+        if(movement.getNorm() > 4.0) {
             s.explode();
         }
         gameEnded = landedOff = true;
         movement *= 0.0;
     }
     if(s.collidesWith(l.getPolygons(), l.getX(), l.getY(), 0.0)) {
-        if(movement.getNorm() > 1.0) {
+        if(movement.getNorm() > 4.0) {
             s.explode();
         }
         gameEnded = landedOnSpot = true;

@@ -51,7 +51,7 @@
 
 1522261881 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\vector3d.h
 
-1522444140 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\main.cpp
+1522785722 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\main.cpp
 	<SOIL/SOIL.h>
 	<GL/freeglut.h>
 	<iostream>
@@ -63,7 +63,7 @@
 	"include/Spaceship.h"
 	"include/Map.h"
 
-1522441215 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\spaceship.h
+1522620301 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\spaceship.h
 	<vector>
 	"RigidBody.h"
 	"Vector3d.h"
@@ -74,17 +74,19 @@
 	<Vector3d.h>
 	"RigidBody.h"
 
-1522421664 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\map.cpp
+1522631922 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\map.cpp
 	"Map.h"
 	<stdlib.h>
 	<GL/glew.h>
 	<iostream>
 	<time.h>
 
-1522441304 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\spaceship.cpp
+1522620356 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\spaceship.cpp
 	"../include/Spaceship.h"
 	<GL/freeglut.h>
 	<stdlib.h>
+	<math.h>
+	<iostream>
 
 1522421910 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\landingsite.cpp
 	"LandingSite.h"

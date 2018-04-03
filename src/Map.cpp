@@ -15,7 +15,7 @@ Map::Map() {
 }
 
 void Map::generateRandom(double width, double height) {
-    int rectangles = 20;
+    int rectangles = 60;
     minHeight    = -(height/2.5);
     maxHeight    = -(minHeight/1.5);
     double step  = (width)/rectangles;
@@ -71,7 +71,7 @@ void Map::drawMap() {
     glBindTexture(GL_TEXTURE_2D, textureId);
     glBegin(GL_TRIANGLE_STRIP);
         for (auto &point : points) {
-            glTexCoord2f((point[X]+width/2)/width, (point[Y]+height/2)/(maxHeight+height/2)); glVertex2d(point[X], point[Y]);
+            glTexCoord2f((point[X]+width/2)/width, ((point[Y]+height)/(height))); glVertex2d(point[X], point[Y]);
         }
     glEnd();
 
@@ -81,7 +81,7 @@ void Map::drawMap() {
 
 Vector3d Map::getRandomPlane() {
     // Para não vir o V0 aqui
-    int random = (rand() % (points.size()-1))+1;
+    int random = (rand() % (points.size()-2))+1;
 
     /**
         Os segmentos planos do mapa são formados pelos vértices múltiplos de 4 e o segundo vértice seguinte

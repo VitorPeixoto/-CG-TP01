@@ -1,6 +1,10 @@
 #include "../include/Spaceship.h"
 #include <GL/freeglut.h>
 #include <stdlib.h>
+#include <math.h>
+#include <iostream>
+using namespace std;
+
 #define X 0
 #define Y 1
 
@@ -41,13 +45,14 @@ void Spaceship::randomLocation(double maxWidth, double maxHeight) {
     x = ((rand() % (int)(maxWidth-100)) + 100)-(maxWidth/2);
     y = minHeight + (rand() % (int)minHeight-100);
     angle = 90;
+    fuel = 50;
 }
 
-void Spaceship::drawSpaceship(void) {
+void Spaceship::drawSpaceship(bool horizontalLock, double lockedAtH) {
     glEnable(GL_TEXTURE_2D);
     glColor3f(1.0, 1.0, 1.0);
     glPushMatrix();
-        glTranslated(x, y, 0.0);
+        if(horizontalLock) glTranslated(-lockedAtH + x, 0.0, 0.0);
         int currentIndex = (fireTextureIndex/animationFactor);
         int steps        = maxFireTextureIndex+1;
 
@@ -61,6 +66,8 @@ void Spaceship::drawSpaceship(void) {
                 glTexCoord2f((currentIndex+1)*(1.0/steps), 1); glVertex2d( fire_x, fire_y1);
                 glTexCoord2f( currentIndex   *(1.0/steps), 1); glVertex2d(-fire_x, fire_y1);
             glEnd();
+            fuel -= 0.1;
+            if(fuel < 0.0) engineOn = false;
         }
 
         glBindTexture(GL_TEXTURE_2D, textureId);
