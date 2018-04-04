@@ -24,10 +24,14 @@ using namespace std;
 #define MULTIPLIER 0.5
 #define FPS_CONST 0.017*MULTIPLIER
 #define HUD_MARGIN 20
+#define BG_MOVEMENT_DELAY 25
+
+const double landingSpeedThreshold = 4.0;
 
 bool* keyStates = new bool[127];
 bool* specialKeyStates = new bool[127];
-bool isPaused = true, isExiting = false, isRestarting = false, landedOnSpot = false, landedOff = false, gameEnded = false;
+bool isPaused = true, isExiting = false, isRestarting = false, landedOnSpot = false, landedOff = false, gameEnded = false, flewOutOfBounds = false;
+bool isHorizontallyLocked = false;
 
 int windowWidth,
     windowHeight;
@@ -35,9 +39,10 @@ int windowWidth,
 int backgroundTextureId;
 
 double orthoHalfWidth, orthoHalfHeight;
+double horizontallyLockedAt = 0.0;
 
 Spaceship s(0.0, 0.0, 26.0, 40.0, 20.0);
-LandingSite l(0.0, 0.0, 60.0, 20.0);
+LandingSite l(0.0, 0.0, 90.0, 30.0);
 Map m;
 
 std::default_random_engine generator;
@@ -102,6 +107,12 @@ void drawExploded() {
     drawText(message, -getStringBitmapLength(message)/2, 0);
 }
 
+void drawFlewOutOfBounds() {
+    glColor3f(1.0, 1.0, 1.0);
+    char *message = (char*)"Voce voou para longe e saiu de orbita. Nova fase? (S/N)";
+    drawText(message, -getStringBitmapLength(message)/2, 0);
+}
+
 void drawHUD() {
     glColor3f(1.0, 1.0, 1.0);
 
@@ -120,20 +131,20 @@ void drawHUD() {
     message = (char*)"Aceleracao:";
     drawText(message, -orthoHalfWidth+HUD_MARGIN, orthoHalfHeight-60);
 
-    message = (char*)std::to_string(abs(gravity - (s.isEngineOn() ? s.getSpeed() : 0))).c_str();
+    message = (char*)std::to_string((int)abs(gravity - (s.isEngineOn() ? s.getSpeed() : 0))).c_str();
     drawText(message, -orthoHalfWidth+HUD_MARGIN+150, orthoHalfHeight-60);
 
     message = (char*)"Combustivel:";
     drawText(message, -orthoHalfWidth+HUD_MARGIN, orthoHalfHeight-80);
 
-    message = (char*)std::to_string(s.getFuel()).c_str();
+    message = (char*)(std::to_string((int)s.getFuel())+" L").c_str();
     drawText(message, -orthoHalfWidth+HUD_MARGIN+150, orthoHalfHeight-80);
 
-    message = (char*)"Distancia:";
+    /*message = (char*)"Distancia:";
     drawText(message, -orthoHalfWidth+HUD_MARGIN, orthoHalfHeight-100);
 
     message = (char*)std::to_string(abs(s.getX() - l.getX())).c_str();
-    drawText(message, -orthoHalfWidth+HUD_MARGIN+150, orthoHalfHeight-100);
+    drawText(message, -orthoHalfWidth+HUD_MARGIN+150, orthoHalfHeight-100);*/
 
     double directiveArrowAngle = atan2(-s.getY() + l.getY(), -s.getX() + l.getX());
     double magnitude = (sqrt(((-s.getX() + l.getX()) * (-s.getX() + l.getX())) + ((-s.getY() + l.getY()) * (-s.getY() + l.getY()))) + 60) / 30;
@@ -158,42 +169,50 @@ void drawBackground() {
 }
 
 void drawScene(void) {
-    double lockedAtH = 0.0;
-    bool horizontalLock = false;
-    if(!(s.getX() > -(orthoHalfWidth*3))) {
-        lockedAtH = -orthoHalfWidth*3;
-        horizontalLock = true;
-    }
-    else if(!(s.getX() < (orthoHalfWidth*3))) {
-        lockedAtH = orthoHalfWidth*3;
-        horizontalLock = true;
-    }
-
     glClear(GL_COLOR_BUFFER_BIT);
-
         glPushMatrix();
-            if(!horizontalLock) glTranslated(-s.getX()/20, -s.getY()/20, 0.0);
-            else glTranslated(-lockedAtH/20, -s.getY()/20, 0.0);
+            if(!isHorizontallyLocked)
+                glTranslated(-s.getX()/BG_MOVEMENT_DELAY, -s.getY()/BG_MOVEMENT_DELAY, 0.0);
+            else
+                glTranslated(-horizontallyLockedAt/BG_MOVEMENT_DELAY, -s.getY()/BG_MOVEMENT_DELAY, 0.0);
+
             drawBackground();
         glPopMatrix();
         glPushMatrix();
-            if(!horizontalLock) glTranslated(-s.getX(), -s.getY(), 0.0);
-            else glTranslated(-lockedAtH, -s.getY(), 0.0);
+            if(!isHorizontallyLocked)
+                glTranslated(-s.getX(), -s.getY(), 0.0);
+            else
+                glTranslated(-horizontallyLockedAt, -s.getY(), 0.0);
 
             m.drawMap();
             l.drawSite();
         glPopMatrix();
-        s.drawSpaceship(horizontalLock, lockedAtH);
+        s.drawSpaceship(isHorizontallyLocked, horizontallyLockedAt);
         if(isRestarting) drawRestartingConfirmation();
         if(isExiting)    drawExitingConfirmation();
         if(isPaused)     drawPaused();
 
         if(s.hasExploded() && (landedOff || landedOnSpot))   drawExploded();
-        else if(landedOff)    drawLandedOff();
-        else if(landedOnSpot) drawLandedOn();
+        else if(landedOff)       drawLandedOff();
+        else if(landedOnSpot)    drawLandedOn();
+        else if(flewOutOfBounds) drawFlewOutOfBounds();
         drawHUD();
     // Diz ao OpenGL para colocar o que desenhamos na tela
     glutSwapBuffers();
+}
+
+void verifyLock() {
+    if(!(s.getX() > m.getLeft() + orthoHalfWidth)) {
+        horizontallyLockedAt = -orthoHalfWidth*3;
+        isHorizontallyLocked = true;
+    }
+    else if(!(s.getX() < m.getRight() - orthoHalfWidth)) {
+        horizontallyLockedAt = orthoHalfWidth*3;
+        isHorizontallyLocked = true;
+    }
+    else {
+        isHorizontallyLocked = false;
+    }
 }
 
 // Inicia algumas variáveis de estado
@@ -240,7 +259,7 @@ void inicializa(void) {
 	);
 
 	backgroundTextureId = SOIL_load_OGL_texture(
-        "src/images/Earth.png",
+        "src/images/Coutinho.png",
         SOIL_LOAD_AUTO,
         SOIL_CREATE_NEW_ID,
         0
@@ -262,6 +281,8 @@ void inicializa(void) {
 
 void restart() {
     s.randomLocation(orthoHalfWidth*2*4, orthoHalfHeight*2);
+    verifyLock();
+
     m.generateRandom(orthoHalfWidth*2*4, orthoHalfHeight*2);
     Vector3d v = m.getRandomPlane();
     l.setX(v.getX());
@@ -278,7 +299,7 @@ void restart() {
     double fuel = 30+t*0.15;
     s.setFuel(fuel);
 
-    gameEnded = landedOnSpot = landedOff = false;
+    gameEnded = landedOnSpot = landedOff = flewOutOfBounds = false;
     s.setExploded(false);
 
     movement *= 0.0;
@@ -320,12 +341,12 @@ void keyDown(unsigned char key, int x, int y) {
     }
     if(key == 'r') {
         isRestarting = true;
-        isExiting = isPaused = false;
+        isExiting = isPaused = landedOff = landedOnSpot = flewOutOfBounds = false;
     }
 
     if(key == KEY_ESC) {
         isExiting = true;
-        isRestarting = isPaused = false;
+        isRestarting = isPaused = landedOff = landedOnSpot = flewOutOfBounds = false;
     }
 }
 
@@ -340,13 +361,14 @@ void keyUp(unsigned char key, int x, int y) {
     }
     if(key == 's') {
         if(isExiting) exit(0);
-        if(isRestarting || landedOff || landedOnSpot) restart();
+        if(isRestarting || landedOff || landedOnSpot || flewOutOfBounds) restart();
     }
     if(key == 'n') {
-        if(isExiting)    isExiting    = isPaused = false;
-        if(isRestarting) isRestarting = isPaused = false;
+        if(isExiting)       isExiting       = isPaused = false;
+        if(isRestarting)    isRestarting    = isPaused = false;
+        if(flewOutOfBounds) flewOutOfBounds = isPaused = false;
 
-        if(gameEnded)    landedOff = landedOnSpot = false;
+        if(gameEnded)    landedOff = landedOnSpot = flewOutOfBounds = false;
     }
 }
 
@@ -363,6 +385,7 @@ void keyboardHandle() {
             movement[X] += s.getSpeed() * cos(radAngle) * FPS_CONST;
             movement[Y] += s.getSpeed() * sin(radAngle) * FPS_CONST;
             s.setEngineOn(true);
+            s.decreaseFuel();
         }
         if(keyStates['a']) {
             s.incrementAngle();
@@ -384,14 +407,14 @@ void atualiza(int time) {
     }
     keyboardHandle();
     if(s.collidesWith(m.getPolygons(), m.getX(), m.getY(), 0.0)) {
-        if(movement.getNorm() > 4.0) {
+        if(movement.getNorm() > landingSpeedThreshold) {
             s.explode();
         }
         gameEnded = landedOff = true;
         movement *= 0.0;
     }
     if(s.collidesWith(l.getPolygons(), l.getX(), l.getY(), 0.0)) {
-        if(movement.getNorm() > 4.0) {
+        if(movement.getNorm() > landingSpeedThreshold) {
             s.explode();
         }
         gameEnded = landedOnSpot = true;
@@ -400,6 +423,11 @@ void atualiza(int time) {
 
     s.translate(movement);
     s.incrementFireTextureIndex();
+    verifyLock();
+
+    if(m.isOutOfBounds(s.getX(), s.getY())) {
+        gameEnded = flewOutOfBounds = true;
+    }
 }
 
 // Rotina principal

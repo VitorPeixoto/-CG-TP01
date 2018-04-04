@@ -12,6 +12,8 @@ using namespace std;
 #define fire_y0 -10
 #define fire_y1 -25
 
+const int spaceshipPositioningMargin = 100;
+
 Spaceship::Spaceship(double _x, double _y, double _width, double _height, double _speed) : RigidBody(_x, _y, 0.0, _width, _height) {
     width  = _width;
     height = _height;
@@ -31,21 +33,34 @@ void Spaceship::incrementExplosionTextureIndex() {
 }
 
 void Spaceship::setTextures(int _textureId, int _fireTextureId, int _maxFireTextureIndex, int _explosionTextureId, int _maxExplosionTextureIndex) {
-    textureId = _textureId;
-    fireTextureId = _fireTextureId;
+    textureId          = _textureId;
+    fireTextureId      = _fireTextureId;
     explosionTextureId = _explosionTextureId;
-    fireTextureIndex = 0;
+
+    fireTextureIndex      = 0;
     explosionTextureIndex = 0;
-    maxFireTextureIndex = _maxFireTextureIndex;
+
+    maxFireTextureIndex      = _maxFireTextureIndex;
     maxExplosionTextureIndex = _maxExplosionTextureIndex;
 }
 
+/**
+ * Posiciona a nave em um local aleatorio dentro dos limites passados
+ **/
 void Spaceship::randomLocation(double maxWidth, double maxHeight) {
     int minHeight = maxHeight/4;
-    x = ((rand() % (int)(maxWidth-100)) + 100)-(maxWidth/2);
-    y = minHeight + (rand() % (int)minHeight-100);
+    x = ((rand() % (int)(maxWidth-(spaceshipPositioningMargin*2))) + spaceshipPositioningMargin)-(maxWidth/2);
+    y = minHeight + (rand() % (int)minHeight-spaceshipPositioningMargin);
     angle = 90;
-    fuel = 50;
+    fuel  = 50;
+}
+
+void Spaceship::decreaseFuel() {
+    fuel -= fuelConsumptionRate;
+    if(fuel <= 0.1) {
+        engineOn = false;
+        fuel = 0.0;
+    }
 }
 
 void Spaceship::drawSpaceship(bool horizontalLock, double lockedAtH) {
@@ -66,8 +81,6 @@ void Spaceship::drawSpaceship(bool horizontalLock, double lockedAtH) {
                 glTexCoord2f((currentIndex+1)*(1.0/steps), 1); glVertex2d( fire_x, fire_y1);
                 glTexCoord2f( currentIndex   *(1.0/steps), 1); glVertex2d(-fire_x, fire_y1);
             glEnd();
-            fuel -= 0.1;
-            if(fuel < 0.0) engineOn = false;
         }
 
         glBindTexture(GL_TEXTURE_2D, textureId);

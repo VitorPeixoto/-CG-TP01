@@ -10,14 +10,19 @@ using namespace std;
 #define X 0
 #define Y 1
 
+/**
+ * Numero de subdivisões da superfície do mapa para variação de relevo
+ **/
+const int rectangles = 60;
+
 Map::Map() {
 
 }
 
 void Map::generateRandom(double width, double height) {
-    int rectangles = 60;
-    minHeight    = -(height/2.5);
-    maxHeight    = -(minHeight/1.5);
+    double minHeight = -(height/2.5);
+    double maxHeight = -(minHeight/1.5);
+
     double step  = (width)/rectangles;
     this->width  = width;
     this->height = height;
@@ -33,6 +38,10 @@ void Map::generateRandom(double width, double height) {
     double currentLeft = -(width/2);
     double randomHeight;
 
+    /**
+     * Cria os vértices do mapa com altura aleatória para simular o relevo e
+     * popula o vetor @points, utilizado no desenho
+     **/
     while(currentLeft <= (width/2)) {
         randomHeight = minHeight + (rand() % (int)maxHeight + 1);
         Vector3d v0 = Vector3d(currentLeft,  randomHeight, 0.0);
@@ -54,6 +63,10 @@ void Map::generateRandom(double width, double height) {
     points.push_back(topRight);
     points.push_back(bottomRight);
 
+    /**
+     * Percorre os vértices do vetor @points e preenche o vetor @polygons
+     * com triângulos formados pelos vertices adjacentes para uso no sistema de colisão
+     **/
     vector<Vector3d> v;
     for(int i = 0; i < points.size()-2; i++) {
         v.push_back(points[i]);
@@ -79,6 +92,10 @@ void Map::drawMap() {
     //drawBody();
 }
 
+/**
+ * Retorna as coordenadas do primeiro vértice um plano aleatorio dentro do mapa
+ * para colocar a plataforma
+ **/
 Vector3d Map::getRandomPlane() {
     // Para não vir o V0 aqui
     int random = (rand() % (points.size()-2))+1;
@@ -94,4 +111,9 @@ Vector3d Map::getRandomPlane() {
     double x = (points[primeiroVertice][X] + points[primeiroVertice+2][X])/2;
     double y = points[primeiroVertice][Y];
     return Vector3d(x, y, 0.0);
+}
+
+bool Map::isOutOfBounds(double x, double y) {
+    //return !((x >= getLeft() && x <= getRight()) && (y >= getBottom() && y <= getTop()));
+    return !((x >= getLeft() && x <= getRight()));
 }

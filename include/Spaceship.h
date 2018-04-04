@@ -15,7 +15,7 @@ class Spaceship : public RigidBody {
         void   setSpeed(double val) { speed = val; }
         double getFuel() { return fuel; }
         void   setFuel(double val) { fuel = val; }
-        bool   hasFuel() { return fuel >= 0.0; }
+        bool   hasFuel() { return fuel >= 0.1; }
         int    getTextureId() { return textureId; }
         int    getFireTextureId() { return fireTextureId; }
         int    getFireTextureIndex() { return fireTextureIndex; }
@@ -32,8 +32,9 @@ class Spaceship : public RigidBody {
         void   explode() { exploded = true; }
         bool   hasExploded() { return exploded; }
 
-        void  incrementFireTextureIndex();
-        void  incrementExplosionTextureIndex();
+        void decreaseFuel();
+        void incrementFireTextureIndex();
+        void incrementExplosionTextureIndex();
         void moveSpaceship(Vector3d movement);
         void randomLocation(double maxWidth, double maxHeight);
         void drawSpaceship(bool horizontalLock, double lockedAtH);
@@ -55,8 +56,9 @@ class Spaceship : public RigidBody {
                maxFireTextureIndex,
                maxExplosionTextureIndex;
 
-       const double rotationSpeed   = 1.0f;
+       const double rotationSpeed   = 1.0;
        const    int animationFactor = 2;
+       const double fuelConsumptionRate = 0.1;
 };
 
 #endif // SPACESHIP_H
