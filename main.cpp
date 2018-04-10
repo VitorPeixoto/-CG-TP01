@@ -8,6 +8,7 @@
 
 #include "LandingSite.h"
 #include "include/Spaceship.h"
+#include "TextureLoader.h"
 #include "include/Map.h"
 
 using namespace std;
@@ -44,6 +45,7 @@ double horizontallyLockedAt = 0.0;
 Spaceship s(0.0, 0.0, 26.0, 40.0, 20.0);
 LandingSite l(0.0, 0.0, 90.0, 30.0);
 Map m;
+TextureLoader t;
 
 std::default_random_engine generator;
 std::uniform_int_distribution<int> distribution(1, 11);
@@ -223,47 +225,13 @@ void inicializa(void) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-    int spaceshipTexture =  SOIL_load_OGL_texture(
-        "src/images/spaceship.png",
-        SOIL_LOAD_AUTO,
-        SOIL_CREATE_NEW_ID,
-        0
-	);
-
-    int fireTexture = SOIL_load_OGL_texture(
-        "src/images/firesprite.png",
-        SOIL_LOAD_AUTO,
-        SOIL_CREATE_NEW_ID,
-        0
-	);
-
-	int mapTexture = SOIL_load_OGL_texture(
-        "src/images/mountain2.png",
-        SOIL_LOAD_AUTO,
-        SOIL_CREATE_NEW_ID,
-        0
-	);
-
-	int landingSiteTexture = SOIL_load_OGL_texture(
-        "src/images/LandingSite.png",
-        SOIL_LOAD_AUTO,
-        SOIL_CREATE_NEW_ID,
-        0
-	);
-
-	int explosionTexture = SOIL_load_OGL_texture(
-        "src/images/Explosion.png",
-        SOIL_LOAD_AUTO,
-        SOIL_CREATE_NEW_ID,
-        0
-	);
-
-	backgroundTextureId = SOIL_load_OGL_texture(
-        "src/images/Coutinho.png",
-        SOIL_LOAD_AUTO,
-        SOIL_CREATE_NEW_ID,
-        0
-	);
+    t.loadTextures();
+    int spaceshipTexture   = t.getSpaceshipTexture();
+    int fireTexture        = t.getFireTexture();
+	int mapTexture         = t.getMapTexture();
+	int landingSiteTexture = t.getLandingSiteTexture();
+	int explosionTexture   = t.getExplosionTexture();
+	backgroundTextureId    = t.getBackgroundTexture();
 
     if (fireTexture == 0 || spaceshipTexture == 0 || mapTexture == 0 || landingSiteTexture == 0 || explosionTexture == 0 || backgroundTextureId == 0) {
         printf("Erro do SOIL: '%s'\n", SOIL_last_result());

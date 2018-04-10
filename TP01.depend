@@ -45,13 +45,13 @@
 
 1522171766 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\projection.h
 
-1522262037 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\vector3d.cpp
+1523391668 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\vector3d.cpp
 	"../include/Vector3d.h"
 	<math.h>
 
 1522261881 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\vector3d.h
 
-1522797821 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\main.cpp
+1523394167 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\main.cpp
 	<SOIL/SOIL.h>
 	<GL/freeglut.h>
 	<iostream>
@@ -61,6 +61,7 @@
 	<random>
 	"LandingSite.h"
 	"include/Spaceship.h"
+	"TextureLoader.h"
 	"include/Map.h"
 
 1522795134 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\spaceship.h
@@ -74,7 +75,7 @@
 	<Vector3d.h>
 	"RigidBody.h"
 
-1522791385 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\map.cpp
+1522961918 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\map.cpp
 	"Map.h"
 	<stdlib.h>
 	<GL/glew.h>
@@ -106,4 +107,24 @@
 	"RigidBody.h"
 	<iostream>
 	<GL/glew.h>
+
+1522961986 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\texturecontroller.cpp
+	"TextureController.h"
+
+1522962095 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\texturecontroller.h
+	<SOIL.h>
+	<string>
+
+1523393917 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\textureloader.cpp
+	"TextureLoader.h"
+
+1523393521 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\textureloader.h
+	<SOIL/SOIL.h>
+	<TextureGroup.h>
+
+1523393612 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\texturegroup.h
+
+1523394030 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\texturegroup.cpp
+	"TextureGroup.h"
+	<SOIL.h>
 
