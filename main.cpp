@@ -226,21 +226,22 @@ void inicializa(void) {
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
     t.loadTextures();
-    int spaceshipTexture   = t.getSpaceshipTexture();
-    int fireTexture        = t.getFireTexture();
-	int mapTexture         = t.getMapTexture();
-	int landingSiteTexture = t.getLandingSiteTexture();
-	int explosionTexture   = t.getExplosionTexture();
-	backgroundTextureId    = t.getBackgroundTexture();
+    Texture* spaceshipTexture   = t.getSpaceshipTexture();
+    Texture* fireTexture        = t.getFireTexture();
+	Texture* mapTexture         = t.getMapTexture();
+	Texture* landingSiteTexture = t.getLandingSiteTexture();
+	Texture* explosionTexture   = t.getExplosionTexture();
+	backgroundTextureId         = t.getBackgroundTexture()->getId();
 
-    if (fireTexture == 0 || spaceshipTexture == 0 || mapTexture == 0 || landingSiteTexture == 0 || explosionTexture == 0 || backgroundTextureId == 0) {
-        printf("Erro do SOIL: '%s'\n", SOIL_last_result());
+    if (fireTexture->getId()      == 0 || spaceshipTexture->getId()    == 0 ||
+        mapTexture->getId()       == 0 || landingSiteTexture->getId()  == 0 ||
+        explosionTexture->getId() == 0 || backgroundTextureId          == 0) {
         exit(-1);
     }
 
-    s.setTextures(spaceshipTexture, fireTexture, 15, explosionTexture, 5);
-    m.setTexture(mapTexture);
-    l.setTexture(landingSiteTexture);
+    s.setTextures(spaceshipTexture, fireTexture, explosionTexture);
+    m.setTexture(mapTexture->getId());
+    l.setTexture(landingSiteTexture->getId());
 
     // cor para limpar a tela
     glClearColor(0, 0, 0.0, 0);

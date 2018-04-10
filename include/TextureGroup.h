@@ -1,32 +1,33 @@
 #ifndef TEXTUREGROUP_H
 #define TEXTUREGROUP_H
 
-
+#include <Texture.h>
 class TextureGroup {
     public:
-        TextureGroup(char* spaceshipTexturePath,
-                     char* fireTexturePath,
-                     char* explosionTexturePath,
-                     char* mapTexturePath,
-                     char* landigSiteTexturePath,
-                     char* backgroundTexturePath);
+        TextureGroup(
+             char* spaceshipTexturePath,  int spaceshipTextureSteps,
+             char* fireTexturePath,       int fireTextureSteps,
+             char* explosionTexturePath,  int explosionTextureSteps,
+             char* mapTexturePath,        int mapTextureSteps,
+             char* landigSiteTexturePath, int landigSiteTextureSteps,
+             char* backgroundTexturePath, int backgroundTextureSteps);
 
-        int getSpaceshipTextureId()   { return spaceshipTextureId; }
-        int getFireTextureId()        { return fireTextureId; }
-        int getExplosionTextureId()   { return explosionTextureId; }
-        int getMapTextureId()         { return mapTextureId; }
-        int getLandingSiteTextureId() { return landingSiteTextureId; }
-        int getBackgroundTextureId()  { return backgroundTextureId; }
+        Texture* getSpaceshipTexture()   { return spaceshipTexture; }
+        Texture* getFireTexture()        { return fireTexture; }
+        Texture* getExplosionTexture()   { return explosionTexture; }
+        Texture* getMapTexture()         { return mapTexture; }
+        Texture* getLandingSiteTexture() { return landingSiteTexture; }
+        Texture* getBackgroundTexture()  { return backgroundTexture; }
 
     protected:
 
     private:
-        int spaceshipTextureId,
-            fireTextureId,
-            explosionTextureId,
-            mapTextureId,
-            landingSiteTextureId,
-            backgroundTextureId;
+        Texture *spaceshipTexture,
+                *fireTexture,
+                *explosionTexture,
+                *mapTexture,
+                *landingSiteTexture,
+                *backgroundTexture;
 };
 
 #endif // TEXTUREGROUP_H

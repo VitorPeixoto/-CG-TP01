@@ -22,26 +22,18 @@ Spaceship::Spaceship(double _x, double _y, double _width, double _height, double
 }
 
 void Spaceship::incrementFireTextureIndex() {
-    if(fireTextureIndex < (maxFireTextureIndex*animationFactor)) fireTextureIndex++;
-    else fireTextureIndex = 0;
+    fireTexture->incrementStep(animationFactor);
 }
 
 void Spaceship::incrementExplosionTextureIndex() {
     if(!exploded) return;
-    if(explosionTextureIndex < (maxExplosionTextureIndex*animationFactor*5)) explosionTextureIndex++;
-    else explosionTextureIndex = 0;
+    explosionTexture->incrementStep(animationFactor*5);
 }
 
-void Spaceship::setTextures(int _textureId, int _fireTextureId, int _maxFireTextureIndex, int _explosionTextureId, int _maxExplosionTextureIndex) {
-    textureId          = _textureId;
-    fireTextureId      = _fireTextureId;
-    explosionTextureId = _explosionTextureId;
-
-    fireTextureIndex      = 0;
-    explosionTextureIndex = 0;
-
-    maxFireTextureIndex      = _maxFireTextureIndex;
-    maxExplosionTextureIndex = _maxExplosionTextureIndex;
+void Spaceship::setTextures(Texture* _spaceshipTexture, Texture* _fireTexture, Texture* _explosionTexture) {
+    spaceshipTexture = _spaceshipTexture;
+    fireTexture      = _fireTexture;
+    explosionTexture = _explosionTexture;
 }
 
 /**
@@ -68,13 +60,13 @@ void Spaceship::drawSpaceship(bool horizontalLock, double lockedAtH) {
     glColor3f(1.0, 1.0, 1.0);
     glPushMatrix();
         if(horizontalLock) glTranslated(-lockedAtH + x, 0.0, 0.0);
-        int currentIndex = (fireTextureIndex/animationFactor);
-        int steps        = maxFireTextureIndex+1;
+        int currentIndex = (fireTexture->getCurrentStep()/animationFactor);
+        int steps        = fireTexture->getSteps();
 
         glRotated(angle-90, 0.0, 0.0, 1.0);
 
         if(engineOn) {
-            glBindTexture(GL_TEXTURE_2D, fireTextureId);
+            glBindTexture(GL_TEXTURE_2D, fireTexture->getId());
             glBegin(GL_TRIANGLE_FAN);
                 glTexCoord2f( currentIndex   *(1.0/steps), 0); glVertex2d(-fire_x, fire_y0);
                 glTexCoord2f((currentIndex+1)*(1.0/steps), 0); glVertex2d( fire_x, fire_y0);
@@ -83,18 +75,20 @@ void Spaceship::drawSpaceship(bool horizontalLock, double lockedAtH) {
             glEnd();
         }
 
-        glBindTexture(GL_TEXTURE_2D, textureId);
+        currentIndex = (spaceshipTexture->getCurrentStep());
+        steps        = spaceshipTexture->getSteps();
+        glBindTexture(GL_TEXTURE_2D, spaceshipTexture->getId());
         glBegin(GL_TRIANGLE_FAN);
-            glTexCoord2f(0, 0); glVertex2d(-width/2,  height/2);
-            glTexCoord2f(1, 0); glVertex2d( width/2,  height/2);
-            glTexCoord2f(1, 1); glVertex2d( width/2, -height/2);
-            glTexCoord2f(0, 1); glVertex2d(-width/2, -height/2);
+            glTexCoord2f( currentIndex   *(1.0/steps), 0); glVertex2d(-width/2,  height/2);
+            glTexCoord2f((currentIndex+1)*(1.0/steps), 0); glVertex2d( width/2,  height/2);
+            glTexCoord2f((currentIndex+1)*(1.0/steps), 1); glVertex2d( width/2, -height/2);
+            glTexCoord2f( currentIndex   *(1.0/steps), 1); glVertex2d(-width/2, -height/2);
         glEnd();
 
-        currentIndex = (explosionTextureIndex/(animationFactor*5));
-        steps        = maxExplosionTextureIndex+1;
+        currentIndex = (explosionTexture->getCurrentStep()/(animationFactor*5));
+        steps        = explosionTexture->getSteps();
         if(exploded) {
-            glBindTexture(GL_TEXTURE_2D, explosionTextureId);
+            glBindTexture(GL_TEXTURE_2D, explosionTexture->getId());
             glBegin(GL_TRIANGLE_FAN);
                 glTexCoord2f( currentIndex   *(1.0/steps), 0); glVertex2d(-height/2, height/2);
                 glTexCoord2f((currentIndex+1)*(1.0/steps), 0); glVertex2d( height/2, height/2);

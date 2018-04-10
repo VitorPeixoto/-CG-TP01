@@ -51,7 +51,7 @@
 
 1522261881 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\vector3d.h
 
-1523394167 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\main.cpp
+1523404031 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\main.cpp
 	<SOIL/SOIL.h>
 	<GL/freeglut.h>
 	<iostream>
@@ -64,10 +64,11 @@
 	"TextureLoader.h"
 	"include/Map.h"
 
-1522795134 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\spaceship.h
+1523404044 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\spaceship.h
 	<vector>
-	"RigidBody.h"
-	"Vector3d.h"
+	<RigidBody.h>
+	<Vector3d.h>
+	<Texture.h>
 
 1522791325 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\map.h
 	<vector>
@@ -82,7 +83,7 @@
 	<iostream>
 	<time.h>
 
-1522795119 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\spaceship.cpp
+1523404382 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\spaceship.cpp
 	"../include/Spaceship.h"
 	<GL/freeglut.h>
 	<stdlib.h>
@@ -115,16 +116,24 @@
 	<SOIL.h>
 	<string>
 
-1523393917 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\textureloader.cpp
+1523404167 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\textureloader.cpp
 	"TextureLoader.h"
 
-1523393521 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\textureloader.h
+1523403980 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\textureloader.h
+	<Texture.h>
 	<SOIL/SOIL.h>
 	<TextureGroup.h>
 
-1523393612 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\texturegroup.h
+1523403956 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\texturegroup.h
+	<Texture.h>
 
-1523394030 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\texturegroup.cpp
+1523400962 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\texturegroup.cpp
 	"TextureGroup.h"
 	<SOIL.h>
+	<stdio.h>
+
+1523404457 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\texture.h
+
+1523401626 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\texture.cpp
+	"Texture.h"
 

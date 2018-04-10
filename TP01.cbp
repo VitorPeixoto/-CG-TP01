@@ -45,6 +45,8 @@
 		<Unit filename="include/Projection.h" />
 		<Unit filename="include/RigidBody.h" />
 		<Unit filename="include/Spaceship.h" />
+		<Unit filename="include/Texture.h" />
+		<Unit filename="include/TextureGroup.h" />
 		<Unit filename="include/TextureLoader.h" />
 		<Unit filename="include/Vector3d.h" />
 		<Unit filename="main.cpp" />
@@ -53,6 +55,8 @@
 		<Unit filename="src/Projection.cpp" />
 		<Unit filename="src/RigidBody.cpp" />
 		<Unit filename="src/Spaceship.cpp" />
+		<Unit filename="src/Texture.cpp" />
+		<Unit filename="src/TextureGroup.cpp" />
 		<Unit filename="src/TextureLoader.cpp" />
 		<Unit filename="src/Vector3d.cpp" />
 		<Extensions>
