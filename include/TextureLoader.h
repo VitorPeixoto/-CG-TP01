@@ -9,6 +9,7 @@ class TextureLoader {
     public:
         TextureLoader();
         void loadTextures();
+        void randomizeTexture();
         Texture* getSpaceshipTexture()   { return current->getSpaceshipTexture(); }
         Texture* getFireTexture()        { return current->getFireTexture(); }
         Texture* getExplosionTexture()   { return current->getExplosionTexture(); }
@@ -18,7 +19,7 @@ class TextureLoader {
     protected:
 
     private:
-        TextureGroup *defaultGroup, *catGroup;
+        TextureGroup *defaultGroup, *catGroup, *dogGroup;
         TextureGroup *current;
 };
 #endif // TEXTURELOADER_H

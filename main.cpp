@@ -6,6 +6,7 @@
 #include <string>
 #include <random>
 
+#include "ScreenController.h"
 #include "LandingSite.h"
 #include "include/Spaceship.h"
 #include "TextureLoader.h"
@@ -31,7 +32,8 @@ const double landingSpeedThreshold = 4.0;
 
 bool* keyStates = new bool[127];
 bool* specialKeyStates = new bool[127];
-bool isPaused = true, isExiting = false, isRestarting = false, landedOnSpot = false, landedOff = false, gameEnded = false, flewOutOfBounds = false;
+bool isPaused = false, isExiting = false, isRestarting = false, landedOnSpot = false, landedOff = false, gameEnded = false, flewOutOfBounds = false;
+bool isOnMenu = true, isOnHelp = false, isOnCredits = false;
 bool isHorizontallyLocked = false;
 
 int windowWidth,
@@ -42,10 +44,10 @@ int backgroundTextureId;
 double orthoHalfWidth, orthoHalfHeight;
 double horizontallyLockedAt = 0.0;
 
-Spaceship s(0.0, 0.0, 26.0, 40.0, 20.0);
+Spaceship s(0.0, 0.0, 39.0, 60.0, 20.0);
 LandingSite l(0.0, 0.0, 90.0, 30.0);
 Map m;
-TextureLoader t;
+TextureLoader textureLoader;
 
 std::default_random_engine generator;
 std::uniform_int_distribution<int> distribution(1, 11);
@@ -53,67 +55,6 @@ std::uniform_int_distribution<int> distribution(1, 11);
 Vector3d movement(0.0, 0.0, 0.0);
 double gravity = -9.8;
 Vector3d gravityVector(0.0, gravity*FPS_CONST, 0.0);
-
-void drawText(char* s, float x, float y) {
-    unsigned int i;
-    glRasterPos2f(x, y);
-
-    for (i = 0; i < strlen (s); i++) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, s[i]);
-    }
-}
-
-double getStringBitmapLength(char* str) {
-    return ((double)glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (unsigned const char*) str)/windowWidth)*(orthoHalfWidth*2);
-}
-
-void drawRestartingConfirmation() {
-    glColor3f(1.0, 1.0, 1.0);
-    char *message = (char*)"Voce tem certeza que deseja reiniciar o jogo?";
-    drawText(message, -getStringBitmapLength(message)/2, 0);
-
-    message = (char*)"S/N";
-    drawText("S/N", -getStringBitmapLength(message)/2, -20);
-}
-
-void drawExitingConfirmation() {
-    glColor3f(1.0, 1.0, 1.0);
-    char *message = (char*)"Voce tem certeza que deseja sair do jogo?";
-    drawText(message, -getStringBitmapLength(message)/2, 0);
-
-    message = (char*)"S/N";
-    drawText("S/N", -getStringBitmapLength(message)/2, -20);
-}
-
-void drawPaused() {
-    glColor3f(1.0, 1.0, 1.0);
-    char *message = (char*)"Pausado";
-    drawText(message, -getStringBitmapLength(message)/2, 0);
-}
-
-void drawLandedOn() {
-    glColor3f(1.0, 1.0, 1.0);
-    char *message = (char*)"Parabens, voce pousou corretamente. Nova fase? (S/N)";
-    drawText(message, -getStringBitmapLength(message)/2, 0);
-}
-
-void drawLandedOff() {
-    glColor3f(1.0, 1.0, 1.0);
-    char *message = (char*)"Voce pousou fora do local de pouso. Nova fase? (S/N)";
-    drawText(message, -getStringBitmapLength(message)/2, 0);
-}
-
-void drawExploded() {
-    glColor3f(1.0, 1.0, 1.0);
-    char *message = (char*)"Voce explodiu. Nova fase? (S/N)";
-    drawText(message, -getStringBitmapLength(message)/2, 0);
-}
-
-void drawFlewOutOfBounds() {
-    glColor3f(1.0, 1.0, 1.0);
-    char *message = (char*)"Voce voou para longe e saiu de orbita. Nova fase? (S/N)";
-    drawText(message, -getStringBitmapLength(message)/2, 0);
-}
 
 void drawHUD() {
     glColor3f(1.0, 1.0, 1.0);
@@ -217,37 +158,6 @@ void verifyLock() {
     }
 }
 
-// Inicia algumas variáveis de estado
-void inicializa(void) {
-    //anti-aliasing
-    glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-
-    t.loadTextures();
-    Texture* spaceshipTexture   = t.getSpaceshipTexture();
-    Texture* fireTexture        = t.getFireTexture();
-	Texture* mapTexture         = t.getMapTexture();
-	Texture* landingSiteTexture = t.getLandingSiteTexture();
-	Texture* explosionTexture   = t.getExplosionTexture();
-	backgroundTextureId         = t.getBackgroundTexture()->getId();
-
-    if (fireTexture->getId()      == 0 || spaceshipTexture->getId()    == 0 ||
-        mapTexture->getId()       == 0 || landingSiteTexture->getId()  == 0 ||
-        explosionTexture->getId() == 0 || backgroundTextureId          == 0) {
-        exit(-1);
-    }
-
-    s.setTextures(spaceshipTexture, fireTexture, explosionTexture);
-    m.setTexture(mapTexture->getId());
-    l.setTexture(landingSiteTexture->getId());
-
-    // cor para limpar a tela
-    glClearColor(0, 0, 0.0, 0);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
 void restart() {
     s.randomLocation(orthoHalfWidth*2*4, orthoHalfHeight*2);
     verifyLock();
@@ -268,11 +178,51 @@ void restart() {
     double fuel = 30+t*0.15;
     s.setFuel(fuel);
 
-    gameEnded = landedOnSpot = landedOff = flewOutOfBounds = false;
+    if(landedOnSpot && !s.hasExploded()) {
+        textureLoader.randomizeTexture();
+        s.setTextures(textureLoader.getSpaceshipTexture(), textureLoader.getFireTexture(), textureLoader.getExplosionTexture());
+        m.setTexture(textureLoader.getMapTexture()->getId());
+        l.setTexture(textureLoader.getLandingSiteTexture()->getId());
+        backgroundTextureId = textureLoader.getBackgroundTexture()->getId();
+    }
+
+    isOnMenu = gameEnded = landedOnSpot = landedOff = flewOutOfBounds = false;
     s.setExploded(false);
 
     movement *= 0.0;
     isRestarting = false;
+}
+
+// Inicia algumas variáveis de estado
+void inicializa(void) {
+    //anti-aliasing
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
+    textureLoader.loadTextures();
+    Texture* spaceshipTexture   = textureLoader.getSpaceshipTexture();
+    Texture* fireTexture        = textureLoader.getFireTexture();
+	Texture* mapTexture         = textureLoader.getMapTexture();
+	Texture* landingSiteTexture = textureLoader.getLandingSiteTexture();
+	Texture* explosionTexture   = textureLoader.getExplosionTexture();
+	backgroundTextureId         = textureLoader.getBackgroundTexture()->getId();
+
+    if (fireTexture->getId()      == 0 || spaceshipTexture->getId()    == 0 ||
+        mapTexture->getId()       == 0 || landingSiteTexture->getId()  == 0 ||
+        explosionTexture->getId() == 0 || backgroundTextureId          == 0) {
+        exit(-1);
+    }
+
+    s.setTextures(spaceshipTexture, fireTexture, explosionTexture);
+    m.setTexture(mapTexture->getId());
+    l.setTexture(landingSiteTexture->getId());
+    restart();
+
+    // cor para limpar a tela
+    glClearColor(0, 0, 0.0, 0);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 // Callback de redimensionamento
@@ -286,63 +236,9 @@ void resizeScreen(int w, int h) {
     orthoHalfHeight = 500;
 
     glOrtho(-orthoHalfWidth, orthoHalfWidth, -orthoHalfHeight, orthoHalfHeight, -1, 1);
-    //glOrtho(-1500, 1500, -orthoHalfHeight, orthoHalfHeight, -1, 1);
-    restart();
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-}
-
-void keyDown(unsigned char key, int x, int y) {
-    keyStates[key] = true;
-
-    if(key == 'p' && !isExiting && !isRestarting) {
-        isPaused = !isPaused;
-        //glViewport(0, 0, w, h);
-        /*glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-
-        //orthoHalfWidth  = 500 * aspectRatio;
-        //orthoHalfHeight = 500;
-        glOrtho(-orthoHalfWidth/1.3, orthoHalfWidth/1.3, -orthoHalfHeight/1.3, orthoHalfHeight/1.3, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();*/
-    }
-    if(key == 'r') {
-        isRestarting = true;
-        isExiting = isPaused = landedOff = landedOnSpot = flewOutOfBounds = false;
-    }
-
-    if(key == KEY_ESC) {
-        isExiting = true;
-        isRestarting = isPaused = landedOff = landedOnSpot = flewOutOfBounds = false;
-    }
-}
-
-void specialKeyDown(int key, int x, int y) {
-    specialKeyStates[key] = true;
-}
-
-void keyUp(unsigned char key, int x, int y) {
-    keyStates[key] = false;
-    if(key == 'w') {
-        s.setEngineOn(false);
-    }
-    if(key == 's') {
-        if(isExiting) exit(0);
-        if(isRestarting || landedOff || landedOnSpot || flewOutOfBounds) restart();
-    }
-    if(key == 'n') {
-        if(isExiting)       isExiting       = isPaused = false;
-        if(isRestarting)    isRestarting    = isPaused = false;
-        if(flewOutOfBounds) flewOutOfBounds = isPaused = false;
-
-        if(gameEnded)    landedOff = landedOnSpot = flewOutOfBounds = false;
-    }
-}
-
-void specialKeyUp(int key, int x, int y) {
-    specialKeyStates[key] = false;
 }
 
 void keyboardHandle() {
@@ -399,6 +295,74 @@ void atualiza(int time) {
     }
 }
 
+
+void keyDown(unsigned char key, int x, int y) {
+    keyStates[key] = true;
+
+    if(key == KEY_ESC) {
+        isExiting = true;
+        isRestarting = isPaused = landedOff = landedOnSpot = flewOutOfBounds = false;
+        glutPostRedisplay();
+    }
+    if(isOnMenu) {
+        if(key == 's') {
+            glutDisplayFunc(drawScene);
+            inicializa();
+            glutTimerFunc(0, atualiza, 17);
+        }
+        if(key == 'h') {
+            isOnHelp = true;
+        }
+        if(key == 'c') {
+            isOnCredits = true;
+        }
+        if(key == 'b') {
+            isOnHelp = isOnCredits = false;
+        }
+        glutPostRedisplay();
+        return;
+    }
+
+    if(key == 'p' && !isExiting && !isRestarting) {
+        isPaused = !isPaused;
+    }
+    if(key == 'r') {
+        isRestarting = true;
+        isExiting = isPaused = landedOff = landedOnSpot = flewOutOfBounds = false;
+    }
+}
+
+void specialKeyDown(int key, int x, int y) {
+    specialKeyStates[key] = true;
+}
+
+void keyUp(unsigned char key, int x, int y) {
+    keyStates[key] = false;
+
+    if(key == 's') {
+        if(isExiting) exit(0);
+        if(isRestarting || landedOff || landedOnSpot || flewOutOfBounds) restart();
+    }
+    if(key == 'n') {
+        if(isExiting)       isExiting       = isPaused = false;
+        if(isRestarting)    isRestarting    = isPaused = false;
+        if(flewOutOfBounds) flewOutOfBounds = isPaused = false;
+
+        if(gameEnded)    landedOff = landedOnSpot = flewOutOfBounds = false;
+        glutPostRedisplay();
+    }
+
+    if(isOnMenu) return;
+
+    if(key == 'w') {
+        s.setEngineOn(false);
+    }
+}
+
+void specialKeyUp(int key, int x, int y) {
+    specialKeyStates[key] = false;
+}
+
 // Rotina principal
 int main(int argc, char **argv) {
     // Acordando o GLUT
@@ -417,11 +381,12 @@ int main(int argc, char **argv) {
     glutInitWindowPosition(0, 0);
 
     // Abre a janela
-    glutCreateWindow("Lander");
+    glutCreateWindow("[TP1] Moon Lander");
     glutFullScreen();
 
     // Registra callbacks para alguns eventos
-    glutDisplayFunc(drawScene);
+    glutDisplayFunc(drawMenu);
+    //glutDisplayFunc(drawScene);
     glutReshapeFunc(resizeScreen);
 
     // Keyboard up and down callbacks
@@ -432,9 +397,8 @@ int main(int argc, char **argv) {
     glutSpecialFunc(specialKeyDown);
     glutSpecialUpFunc(specialKeyUp);
 
-    inicializa();
-
-    glutTimerFunc(0, atualiza, 17);
+    inicializaMenu();
+    //inicializa();
 
     // Entra em loop e nunca sai
     glutMainLoop();
