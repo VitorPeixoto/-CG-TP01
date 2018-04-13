@@ -170,19 +170,19 @@ void drawPaused() {
 void drawLandedOn() {
     glColor3f(1.0, 1.0, 1.0);
     char *message = (char*)"Parabens, voce pousou corretamente. Nova fase? (S/N)";
-    drawText(message, -getStringBitmapLength(message)/2, 0);
+    drawText(message, -getStringBitmapLength(message)/2, 50);
 }
 
 void drawLandedOff() {
     glColor3f(1.0, 1.0, 1.0);
     char *message = (char*)"Voce pousou fora do local de pouso. Nova fase? (S/N)";
-    drawText(message, -getStringBitmapLength(message)/2, 0);
+    drawText(message, -getStringBitmapLength(message)/2, 50);
 }
 
 void drawExploded() {
     glColor3f(1.0, 1.0, 1.0);
     char *message = (char*)"Voce explodiu. Nova fase? (S/N)";
-    drawText(message, -getStringBitmapLength(message)/2, 0);
+    drawText(message, -getStringBitmapLength(message)/2, 50);
 }
 
 void drawFlewOutOfBounds() {

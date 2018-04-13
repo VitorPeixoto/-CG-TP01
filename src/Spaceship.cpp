@@ -60,6 +60,7 @@ void Spaceship::decreaseFuel() {
 void Spaceship::drawSpaceship(bool horizontalLock, double lockedAtH) {
     glEnable(GL_TEXTURE_2D);
     glColor3f(1.0, 1.0, 1.0);
+
     glPushMatrix();
         if(horizontalLock) glTranslated(-lockedAtH + x, 0.0, 0.0);
         int currentIndex = (fireTexture->getCurrentStep()/(animationFactor*10));

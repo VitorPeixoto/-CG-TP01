@@ -22,6 +22,14 @@ using namespace std;
 #define Y 1
 #define Z 2
 
+#define ORTHO_WIDTH  orthoHalfWidth*2
+#define ORTHO_HEIGHT orthoHalfHeight*2
+
+/**
+ * Multiplicador do comprimento do mapa para mais telas
+ **/
+#define SCREENS 4
+
 #define KEY_ESC 27
 #define MULTIPLIER 0.5
 #define FPS_CONST 0.017*MULTIPLIER
@@ -44,9 +52,9 @@ int backgroundTextureId;
 double orthoHalfWidth, orthoHalfHeight;
 double horizontallyLockedAt = 0.0;
 
-Spaceship s(0.0, 0.0, 39.0, 60.0, 20.0);
-LandingSite l(0.0, 0.0, 90.0, 30.0);
-Map m;
+Spaceship spaceship(0.0, 0.0, 39.0, 60.0, 20.0);
+LandingSite landingSite(0.0, 0.0, 90.0, 30.0);
+Map gameMap;
 TextureLoader textureLoader;
 
 std::default_random_engine generator;
@@ -62,7 +70,7 @@ void drawHUD() {
     char *message = (char*)"Altura:";
     drawText(message, -orthoHalfWidth+HUD_MARGIN, orthoHalfHeight-20);
 
-    message = (char*)std::to_string((int)s.getY()).c_str();
+    message = (char*)std::to_string((int)spaceship.getY()).c_str();
     drawText(message, -orthoHalfWidth+HUD_MARGIN+150, orthoHalfHeight-20);
 
     message = (char*)"Velocidade:";
@@ -74,23 +82,17 @@ void drawHUD() {
     message = (char*)"Aceleracao:";
     drawText(message, -orthoHalfWidth+HUD_MARGIN, orthoHalfHeight-60);
 
-    message = (char*)std::to_string((int)abs(gravity - (s.isEngineOn() ? s.getSpeed() : 0))).c_str();
+    message = (char*)std::to_string((int)abs(gravity - (spaceship.isEngineOn() ? spaceship.getSpeed() : 0))).c_str();
     drawText(message, -orthoHalfWidth+HUD_MARGIN+150, orthoHalfHeight-60);
 
     message = (char*)"Combustivel:";
     drawText(message, -orthoHalfWidth+HUD_MARGIN, orthoHalfHeight-80);
 
-    message = (char*)(std::to_string((int)s.getFuel())+" L").c_str();
+    message = (char*)(std::to_string((int)spaceship.getFuel())+" L").c_str();
     drawText(message, -orthoHalfWidth+HUD_MARGIN+150, orthoHalfHeight-80);
 
-    /*message = (char*)"Distancia:";
-    drawText(message, -orthoHalfWidth+HUD_MARGIN, orthoHalfHeight-100);
-
-    message = (char*)std::to_string(abs(s.getX() - l.getX())).c_str();
-    drawText(message, -orthoHalfWidth+HUD_MARGIN+150, orthoHalfHeight-100);*/
-
-    double directiveArrowAngle = atan2(-s.getY() + l.getY(), -s.getX() + l.getX());
-    double magnitude = (sqrt(((-s.getX() + l.getX()) * (-s.getX() + l.getX())) + ((-s.getY() + l.getY()) * (-s.getY() + l.getY()))) + 60) / 30;
+    double directiveArrowAngle = atan2(-spaceship.getY() + landingSite.getY(), -spaceship.getX() + landingSite.getX());
+    double magnitude = (sqrt(((-spaceship.getX() + landingSite.getX()) * (-spaceship.getX() + landingSite.getX())) + ((-spaceship.getY() + landingSite.getY()) * (-spaceship.getY() + landingSite.getY()))) + 60) / 30;
 
     glBegin(GL_LINES);
         glVertex3f(0.0, orthoHalfHeight, 0.0);
@@ -115,27 +117,27 @@ void drawScene(void) {
     glClear(GL_COLOR_BUFFER_BIT);
         glPushMatrix();
             if(!isHorizontallyLocked)
-                glTranslated(-s.getX()/BG_MOVEMENT_DELAY, -s.getY()/BG_MOVEMENT_DELAY, 0.0);
+                glTranslated(-spaceship.getX()/BG_MOVEMENT_DELAY, -spaceship.getY()/BG_MOVEMENT_DELAY, 0.0);
             else
-                glTranslated(-horizontallyLockedAt/BG_MOVEMENT_DELAY, -s.getY()/BG_MOVEMENT_DELAY, 0.0);
+                glTranslated(-horizontallyLockedAt/BG_MOVEMENT_DELAY, -spaceship.getY()/BG_MOVEMENT_DELAY, 0.0);
 
             drawBackground();
         glPopMatrix();
         glPushMatrix();
             if(!isHorizontallyLocked)
-                glTranslated(-s.getX(), -s.getY(), 0.0);
+                glTranslated(-spaceship.getX(), -spaceship.getY(), 0.0);
             else
-                glTranslated(-horizontallyLockedAt, -s.getY(), 0.0);
+                glTranslated(-horizontallyLockedAt, -spaceship.getY(), 0.0);
 
-            m.drawMap();
-            l.drawSite();
+            gameMap.drawMap();
+            landingSite.drawSite();
         glPopMatrix();
-        s.drawSpaceship(isHorizontallyLocked, horizontallyLockedAt);
+        spaceship.drawSpaceship(isHorizontallyLocked, horizontallyLockedAt);
         if(isRestarting) drawRestartingConfirmation();
         if(isExiting)    drawExitingConfirmation();
         if(isPaused)     drawPaused();
 
-        if(s.hasExploded() && (landedOff || landedOnSpot))   drawExploded();
+        if(spaceship.hasExploded() && (landedOff || landedOnSpot))   drawExploded();
         else if(landedOff)       drawLandedOff();
         else if(landedOnSpot)    drawLandedOn();
         else if(flewOutOfBounds) drawFlewOutOfBounds();
@@ -145,12 +147,12 @@ void drawScene(void) {
 }
 
 void verifyLock() {
-    if(!(s.getX() > m.getLeft() + orthoHalfWidth)) {
-        horizontallyLockedAt = -orthoHalfWidth*3;
+    if(!(spaceship.getX() > gameMap.getLeft() + orthoHalfWidth)) {
+        horizontallyLockedAt = -orthoHalfWidth*(SCREENS-1);
         isHorizontallyLocked = true;
     }
-    else if(!(s.getX() < m.getRight() - orthoHalfWidth)) {
-        horizontallyLockedAt = orthoHalfWidth*3;
+    else if(!(spaceship.getX() < gameMap.getRight() - orthoHalfWidth)) {
+        horizontallyLockedAt = orthoHalfWidth*(SCREENS-1);
         isHorizontallyLocked = true;
     }
     else {
@@ -159,35 +161,35 @@ void verifyLock() {
 }
 
 void restart() {
-    s.randomLocation(orthoHalfWidth*2*4, orthoHalfHeight*2);
+    spaceship.randomLocation(ORTHO_WIDTH*SCREENS, ORTHO_HEIGHT);
     verifyLock();
 
-    m.generateRandom(orthoHalfWidth*2*4, orthoHalfHeight*2);
-    Vector3d v = m.getRandomPlane();
-    l.setX(v.getX());
-    l.setY(v.getY());
+    gameMap.generateRandom(ORTHO_WIDTH*SCREENS, ORTHO_HEIGHT);
+    Vector3d v = gameMap.getRandomPlane();
+    landingSite.setX(v.getX());
+    landingSite.setY(v.getY());
 
     gravity = -distribution(generator);
 
     gravityVector = Vector3d(0.0, gravity*FPS_CONST, 0.0);
 
-    //cout << "angle: " << abs(asin(gravity/s.getSpeed()))*180/M_PI << endl;
-    //cout << "Fmx: "   << cos(abs(asin(gravity/s.getSpeed())))*20  << endl;
-
-    double t = (abs(s.getX() - l.getX())*0.7)/(cos(abs(asin(gravity*1.8/s.getSpeed())))*s.getSpeed());
+    /**
+     * Um monte de numeros mágicos malucos
+     **/
+    double t = (abs(spaceship.getX() - landingSite.getX())*0.7)/(cos(abs(asin(gravity*1.8/spaceship.getSpeed())))*spaceship.getSpeed());
     double fuel = 30+t*0.15;
-    s.setFuel(fuel);
+    spaceship.setFuel(fuel);
 
-    if(landedOnSpot && !s.hasExploded()) {
+    if(landedOnSpot && !spaceship.hasExploded()) {
         textureLoader.randomizeTexture();
-        s.setTextures(textureLoader.getSpaceshipTexture(), textureLoader.getFireTexture(), textureLoader.getExplosionTexture());
-        m.setTexture(textureLoader.getMapTexture()->getId());
-        l.setTexture(textureLoader.getLandingSiteTexture()->getId());
+        spaceship.setTextures(textureLoader.getSpaceshipTexture(), textureLoader.getFireTexture(), textureLoader.getExplosionTexture());
+        gameMap.setTexture(textureLoader.getMapTexture()->getId());
+        landingSite.setTexture(textureLoader.getLandingSiteTexture()->getId());
         backgroundTextureId = textureLoader.getBackgroundTexture()->getId();
     }
 
     isOnMenu = gameEnded = landedOnSpot = landedOff = flewOutOfBounds = false;
-    s.setExploded(false);
+    spaceship.setExploded(false);
 
     movement *= 0.0;
     isRestarting = false;
@@ -215,9 +217,9 @@ void inicializa(void) {
         exit(-1);
     }
 
-    s.setTextures(spaceshipTexture, fireTexture, explosionTexture);
-    m.setTexture(mapTexture->getId());
-    l.setTexture(landingSiteTexture->getId());
+    spaceship.setTextures(spaceshipTexture, fireTexture, explosionTexture);
+    gameMap.setTexture(mapTexture->getId());
+    landingSite.setTexture(landingSiteTexture->getId());
     restart();
 
     // cor para limpar a tela
@@ -227,10 +229,24 @@ void inicializa(void) {
 
 // Callback de redimensionamento
 void resizeScreen(int w, int h) {
-    double aspectRatio = (double)w / h;
-    glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+
+    double windowAspectRatio = ((double)w)/h;
+    double worldAspectRatio = ((ORTHO_WIDTH)/(ORTHO_HEIGHT));
+    if (windowAspectRatio < worldAspectRatio) {
+        double viewportHeight = w / worldAspectRatio;
+        double viewportY = (h - viewportHeight)/2;
+        glViewport(0, viewportY, w, viewportHeight);
+    }
+    else if (windowAspectRatio > worldAspectRatio) {
+        double viewportWidth = (h) * worldAspectRatio;
+        double viewportX = (w - viewportWidth)/2;
+        glViewport(viewportX, 0, viewportWidth, h);
+    } else {
+        glViewport(0, 0, w, h);
+    }
+    double aspectRatio = (double)windowWidth / windowHeight;
 
     orthoHalfWidth  = 500 * aspectRatio;
     orthoHalfHeight = 500;
@@ -243,20 +259,20 @@ void resizeScreen(int w, int h) {
 
 void keyboardHandle() {
     if(!gameEnded) {
-        if(keyStates['w'] && s.hasFuel()) {
-            double radAngle = s.getAngle();
+        if(keyStates['w'] && spaceship.hasFuel()) {
+            double radAngle = spaceship.getAngle();
             radAngle *= M_PI/180;
 
-            movement[X] += s.getSpeed() * cos(radAngle) * FPS_CONST;
-            movement[Y] += s.getSpeed() * sin(radAngle) * FPS_CONST;
-            s.setEngineOn(true);
-            s.decreaseFuel();
+            movement[X] += spaceship.getSpeed() * cos(radAngle) * FPS_CONST;
+            movement[Y] += spaceship.getSpeed() * sin(radAngle) * FPS_CONST;
+            spaceship.setEngineOn(true);
+            spaceship.decreaseFuel();
         }
         if(keyStates['a']) {
-            s.incrementAngle();
+            spaceship.incrementAngle();
         }
         if(keyStates['d']) {
-            s.decrementAngle();
+            spaceship.decrementAngle();
         }
         movement += gravityVector;
     }
@@ -266,31 +282,31 @@ void keyboardHandle() {
 void atualiza(int time) {
     glutTimerFunc(time, atualiza, time);
     if(isPaused || isRestarting || isExiting || gameEnded) {
-        s.incrementExplosionTextureIndex();
+        spaceship.incrementExplosionTextureIndex();
         glutPostRedisplay();
         return;
     }
     keyboardHandle();
-    if(s.collidesWith(m.getPolygons(), m.getX(), m.getY(), 0.0)) {
+    if(spaceship.collidesWith(gameMap.getPolygons(), gameMap.getX(), gameMap.getY(), 0.0)) {
         if(movement.getNorm() > landingSpeedThreshold) {
-            s.explode();
+            spaceship.explode();
         }
         gameEnded = landedOff = true;
         movement *= 0.0;
     }
-    if(s.collidesWith(l.getPolygons(), l.getX(), l.getY(), 0.0)) {
+    if(spaceship.collidesWith(landingSite.getPolygons(), landingSite.getX(), landingSite.getY(), 0.0)) {
         if(movement.getNorm() > landingSpeedThreshold) {
-            s.explode();
+            spaceship.explode();
         }
         gameEnded = landedOnSpot = true;
         movement *= 0.0;
     }
 
-    s.translate(movement);
-    s.incrementFireTextureIndex();
+    spaceship.translate(movement);
+    spaceship.incrementFireTextureIndex();
     verifyLock();
 
-    if(m.isOutOfBounds(s.getX(), s.getY())) {
+    if(gameMap.isOutOfBounds(spaceship.getX(), spaceship.getY())) {
         gameEnded = flewOutOfBounds = true;
     }
 }
@@ -355,7 +371,7 @@ void keyUp(unsigned char key, int x, int y) {
     if(isOnMenu) return;
 
     if(key == 'w') {
-        s.setEngineOn(false);
+        spaceship.setEngineOn(false);
     }
 }
 
@@ -386,7 +402,6 @@ int main(int argc, char **argv) {
 
     // Registra callbacks para alguns eventos
     glutDisplayFunc(drawMenu);
-    //glutDisplayFunc(drawScene);
     glutReshapeFunc(resizeScreen);
 
     // Keyboard up and down callbacks
@@ -398,7 +413,6 @@ int main(int argc, char **argv) {
     glutSpecialUpFunc(specialKeyUp);
 
     inicializaMenu();
-    //inicializa();
 
     // Entra em loop e nunca sai
     glutMainLoop();

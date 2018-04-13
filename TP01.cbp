@@ -44,6 +44,7 @@
 		<Unit filename="include/Map.h" />
 		<Unit filename="include/Projection.h" />
 		<Unit filename="include/RigidBody.h" />
+		<Unit filename="include/ScreenController.h" />
 		<Unit filename="include/Spaceship.h" />
 		<Unit filename="include/Texture.h" />
 		<Unit filename="include/TextureGroup.h" />
@@ -54,6 +55,7 @@
 		<Unit filename="src/Map.cpp" />
 		<Unit filename="src/Projection.cpp" />
 		<Unit filename="src/RigidBody.cpp" />
+		<Unit filename="src/ScreenController.cpp" />
 		<Unit filename="src/Spaceship.cpp" />
 		<Unit filename="src/Texture.cpp" />
 		<Unit filename="src/TextureGroup.cpp" />

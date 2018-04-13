@@ -51,7 +51,7 @@
 
 1522261881 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\vector3d.h
 
-1523564696 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\main.cpp
+1523582163 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\main.cpp
 	<SOIL/SOIL.h>
 	<GL/freeglut.h>
 	<iostream>
@@ -77,14 +77,14 @@
 	<Vector3d.h>
 	"RigidBody.h"
 
-1522961918 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\map.cpp
+1523586345 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\map.cpp
 	"Map.h"
 	<stdlib.h>
 	<GL/glew.h>
 	<iostream>
 	<time.h>
 
-1523475396 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\spaceship.cpp
+1523586522 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\spaceship.cpp
 	"../include/Spaceship.h"
 	<GL/freeglut.h>
 	<stdlib.h>
@@ -117,7 +117,7 @@
 	<SOIL.h>
 	<string>
 
-1523564183 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\textureloader.cpp
+1523585408 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\textureloader.cpp
 	"TextureLoader.h"
 	<stdlib.h>
 
@@ -139,7 +139,7 @@
 1523401626 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\texture.cpp
 	"Texture.h"
 
-1523553887 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\screencontroller.cpp
+1523565247 source:c:\users\vitor\documents\cg\tp1\-cg-tp01\src\screencontroller.cpp
 	"ScreenController.h"
 
 1523551607 c:\users\vitor\documents\cg\tp1\-cg-tp01\include\screencontroller.h
