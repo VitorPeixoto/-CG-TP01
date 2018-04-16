@@ -9,8 +9,8 @@ using namespace std;
 #define Y 1
 
 #define fire_x 7.5
-#define fire_y0 -30//-15
-#define fire_y1 -60//-37
+#define fire_y0 -15
+#define fire_y1 -37
 
 const int spaceshipPositioningMargin = 100;
 

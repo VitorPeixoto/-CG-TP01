@@ -98,11 +98,18 @@ void drawHUD() {
         glVertex3f(0.0, orthoHalfHeight, 0.0);
         glVertex3f(0.0 + cos(directiveArrowAngle)*magnitude, orthoHalfHeight, 0);
     glEnd();
+    glBegin(GL_POINTS);
+        glVertex3f(0.0, orthoHalfHeight, 0.0);
+    glEnd();
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_POINTS);
+        glVertex3f(0.0 + cos(directiveArrowAngle)*magnitude, orthoHalfHeight, 0);
+    glEnd();
 }
 
 void drawBackground() {
-   glEnable(GL_TEXTURE_2D);
-
+    glEnable(GL_TEXTURE_2D);
+    glColor3f(1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, backgroundTextureId);
     glBegin(GL_TRIANGLE_FAN);
         glTexCoord2f(0, 0); glVertex2d(-orthoHalfWidth,  orthoHalfHeight);
@@ -224,6 +231,7 @@ void inicializa(void) {
 
     // cor para limpar a tela
     glClearColor(0, 0, 0.0, 0);
+    glPointSize(4);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
