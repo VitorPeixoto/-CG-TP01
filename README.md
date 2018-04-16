@@ -1,8 +1,9 @@
 # -CG-TP01
 Primeiro TP de Computação Gráfica
 
-## a) Instruções de compilação
-Projeto desenvolvido no Codeblocks no Windows
+## a) Instruções de compilação e execução
+Projeto desenvolvido no Codeblocks no Windows.
+Executável em bin/Release
 
 ## b) Itens adicionais
   - Relativas à superfície:

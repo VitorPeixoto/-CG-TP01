@@ -16,7 +16,7 @@ void inicializaMenu() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     bgTexture = SOIL_load_OGL_texture(
-        "src/images/MainMenuBackground.png",
+        "../../src/images/MainMenuBackground.png",
         SOIL_LOAD_AUTO,
         SOIL_CREATE_NEW_ID,
         0
@@ -26,7 +26,7 @@ void inicializaMenu() {
     }
 
     textTexture = SOIL_load_OGL_texture(
-        "src/images/MainMenuText.png",
+        "../../src/images/MainMenuText.png",
         SOIL_LOAD_AUTO,
         SOIL_CREATE_NEW_ID,
         0
@@ -36,7 +36,7 @@ void inicializaMenu() {
     }
 
     helpTexture = SOIL_load_OGL_texture(
-        "src/images/HelpText.png",
+        "../../src/images/HelpText.png",
         SOIL_LOAD_AUTO,
         SOIL_CREATE_NEW_ID,
         0
@@ -45,7 +45,7 @@ void inicializaMenu() {
         printf("Erro do SOIL: '%s'\n", SOIL_last_result());
     }
     creditsTexture = SOIL_load_OGL_texture(
-        "src/images/CreditsText.png",
+        "../../src/images/CreditsText.png",
         SOIL_LOAD_AUTO,
         SOIL_CREATE_NEW_ID,
         0
